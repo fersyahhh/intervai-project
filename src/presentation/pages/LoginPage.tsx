@@ -19,12 +19,7 @@ export default function LoginPage() {
         </div>
         
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-gray-700">Password</label>
-            <Link to="#" className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">
-              Lupa password?
-            </Link>
-          </div>
+          <label className="block text-sm font-semibold text-gray-700">Password</label>
           <input 
             type="password" 
             className="auth-input" 
