@@ -15,7 +15,6 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -88,15 +87,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/setup`,
-      },
-    });
-    return { error };
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -108,7 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...authState,
         signUp,
         signIn,
-        signInWithGoogle,
         signOut,
       }}
     >
