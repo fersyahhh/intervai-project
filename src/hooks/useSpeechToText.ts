@@ -4,7 +4,7 @@ import { useInterviewStore } from '../store/useInterviewStore';
 // Type declarations for Web Speech API
 interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
-  results: any; // SpeechRecognitionResultList
+  results: any;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -12,25 +12,23 @@ interface SpeechRecognitionErrorEvent extends Event {
   message: string;
 }
 
-interface SpeechRecognition extends EventTarget {
+interface SpeechRecognitionInstance extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
   start(): void;
   stop(): void;
   abort(): void;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognitionInstance, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onend: ((this: SpeechRecognitionInstance, ev: Event) => any) | null;
+  onresult: ((this: SpeechRecognitionInstance, ev: SpeechRecognitionEvent) => any) | null;
+  onstart: ((this: SpeechRecognitionInstance, ev: Event) => any) | null;
 }
 
 declare global {
   interface Window {
-    SpeechRecognition: { new (): SpeechRecognition };
-    webkitSpeechRecognition: { new (): SpeechRecognition };
+    SpeechRecognition: { new (): SpeechRecognitionInstance };
+    webkitSpeechRecognition: { new (): SpeechRecognitionInstance };
   }
 }
 
@@ -39,20 +37,29 @@ export function useSpeechToText() {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
-  // Track if we intentionally want to keep recording
-  // This helps auto-restart the API if it stops due to silence
   const shouldBeRecordingRef = useRef(false);
-
-  // Connect to Zustand store
-  const appendTranscript = useInterviewStore((state) => state.appendTranscript);
-  const incrementHesitation = useInterviewStore((state) => state.incrementHesitation);
-  const setStatus = useInterviewStore((state) => state.setStatus);
+  const isInitializedRef = useRef(false);
 
   // Hesitation detection (silence > 4 seconds)
   const SILENCE_THRESHOLD_MS = 4000;
+
+  // Use refs for store actions so they never cause re-renders or re-initialization
+  const storeActionsRef = useRef({
+    appendTranscript: useInterviewStore.getState().appendTranscript,
+    incrementHesitation: useInterviewStore.getState().incrementHesitation,
+    setStatus: useInterviewStore.getState().setStatus,
+  });
+
+  // Keep refs in sync (Zustand actions are stable, but just in case)
+  useEffect(() => {
+    storeActionsRef.current = {
+      appendTranscript: useInterviewStore.getState().appendTranscript,
+      incrementHesitation: useInterviewStore.getState().incrementHesitation,
+      setStatus: useInterviewStore.getState().setStatus,
+    };
+  });
 
   const clearSilenceTimer = useCallback(() => {
     if (silenceTimerRef.current) {
@@ -61,19 +68,20 @@ export function useSpeechToText() {
     }
   }, []);
 
-  const resetSilenceTimer = useCallback(() => {
+  const startSilenceTimer = useCallback(() => {
     clearSilenceTimer();
-    if (isRecording) {
-      silenceTimerRef.current = setTimeout(() => {
-        incrementHesitation();
-        console.log('⚠️ [SpeechToText] Hesitation detected! (+1)');
-        // Restart timer after detecting hesitation
-        resetSilenceTimer();
-      }, SILENCE_THRESHOLD_MS);
-    }
-  }, [isRecording, incrementHesitation, clearSilenceTimer]);
+    silenceTimerRef.current = setTimeout(function tick() {
+      storeActionsRef.current.incrementHesitation();
+      console.log('⚠️ [SpeechToText] Hesitation detected! (+1)');
+      silenceTimerRef.current = setTimeout(tick, SILENCE_THRESHOLD_MS);
+    }, SILENCE_THRESHOLD_MS);
+  }, [clearSilenceTimer]);
 
+  // Initialize SpeechRecognition ONCE on mount (empty dependency array)
   useEffect(() => {
+    // Prevent double initialization in React StrictMode
+    if (isInitializedRef.current) return;
+
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -82,100 +90,80 @@ export function useSpeechToText() {
       return;
     }
 
+    isInitializedRef.current = true;
+
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
-    recognition.interimResults = true; // Enable interim results to show in console
+    recognition.interimResults = true;
     recognition.lang = 'id-ID';
 
-    // Add logging for start event
     recognition.onstart = () => {
       console.log('🎙️ [SpeechToText] Microphone activated, listening started.');
       setIsRecording(true);
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let newTranscript = '';
-      let interimTranscript = '';
-      
+      let finalText = '';
+      let interimText = '';
+
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          newTranscript += event.results[i][0].transcript + ' ';
+          finalText += event.results[i][0].transcript + ' ';
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          interimText += event.results[i][0].transcript;
         }
       }
 
-      // Log for debugging
-      if (interimTranscript.trim() !== '') {
-        console.log('🗣️ [SpeechToText] Sedang mendengarkan (Interim):', interimTranscript);
+      if (interimText.trim()) {
+        console.log('🗣️ [SpeechToText] Sedang mendengarkan (Interim):', interimText);
       }
 
-      if (newTranscript.trim() !== '') {
-        console.log('✅ [SpeechToText] Teks Final (Final):', newTranscript);
-        appendTranscript(newTranscript);
-        // User spoke, so reset the silence timer
-        resetSilenceTimer();
+      if (finalText.trim()) {
+        console.log('✅ [SpeechToText] Teks Final:', finalText);
+        storeActionsRef.current.appendTranscript(finalText);
       }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('❌ [SpeechToText] Error mendeteksi suara:', event.error);
-      
-      // 'no-speech' is normal during silence.
-      // 'aborted' happens during React StrictMode cleanup or when we manually stop it.
+      // These errors are normal and expected — just ignore them
       if (event.error === 'no-speech' || event.error === 'aborted') {
+        console.log(`ℹ️ [SpeechToText] Ignored error: ${event.error}`);
         return;
       }
-      
+
+      console.error('❌ [SpeechToText] Error:', event.error);
       setError(`Terjadi kesalahan pada mikrofon: ${event.error}`);
       shouldBeRecordingRef.current = false;
       setIsRecording(false);
-      setStatus('processing');
-      clearSilenceTimer();
+      storeActionsRef.current.setStatus('idle');
     };
 
     recognition.onend = () => {
-      console.log('🎙️ [SpeechToText] Sesi mendengarkan berhenti.');
-      
-      // Auto-restart if we didn't explicitly stop it
+      console.log('🎙️ [SpeechToText] Sesi berhenti.');
+
       if (shouldBeRecordingRef.current) {
-        console.log('🔄 [SpeechToText] Auto-restart Web Speech API (menjaga tetap mendengarkan)...');
-        
-        // Use a slight delay to ensure the browser has fully cleared the previous session
+        console.log('🔄 [SpeechToText] Auto-restart...');
         setTimeout(() => {
-          if (shouldBeRecordingRef.current) {
+          if (shouldBeRecordingRef.current && recognitionRef.current) {
             try {
-              recognition.start();
+              recognitionRef.current.start();
             } catch (e) {
-              console.error('❌ [SpeechToText] Gagal merestart otomatis:', e);
+              console.error('❌ [SpeechToText] Gagal restart:', e);
             }
           }
-        }, 250);
+        }, 300);
       } else {
         setIsRecording(false);
-        clearSilenceTimer();
       }
     };
 
     recognitionRef.current = recognition;
 
+    // Cleanup: only abort on true unmount, not on StrictMode re-run
     return () => {
-      if (recognitionRef.current) {
-        shouldBeRecordingRef.current = false;
-        recognitionRef.current.abort();
-      }
-      clearSilenceTimer();
+      // Don't cleanup in StrictMode double-invoke
     };
-  }, [appendTranscript, resetSilenceTimer, clearSilenceTimer, setStatus]);
-
-  // Effect to manage the silence timer based on recording state
-  useEffect(() => {
-    if (isRecording) {
-      resetSilenceTimer();
-    } else {
-      clearSilenceTimer();
-    }
-  }, [isRecording, resetSilenceTimer, clearSilenceTimer]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startRecording = useCallback(() => {
     setError(null);
@@ -184,25 +172,28 @@ export function useSpeechToText() {
     try {
       shouldBeRecordingRef.current = true;
       recognitionRef.current.start();
-      setStatus('recording');
+      storeActionsRef.current.setStatus('recording');
+      startSilenceTimer();
+      console.log('▶️ [SpeechToText] User pressed START');
     } catch (err) {
       console.error('Failed to start recording:', err);
     }
-  }, [isSupported, setStatus]);
+  }, [isSupported, startSilenceTimer]);
 
   const stopRecording = useCallback(() => {
-    if (!isSupported || !recognitionRef.current) return;
+    if (!recognitionRef.current) return;
 
     try {
       shouldBeRecordingRef.current = false;
       recognitionRef.current.stop();
       setIsRecording(false);
-      setStatus('processing');
+      storeActionsRef.current.setStatus('processing');
       clearSilenceTimer();
+      console.log('⏹️ [SpeechToText] User pressed STOP');
     } catch (err) {
       console.error('Failed to stop recording:', err);
     }
-  }, [isSupported, setStatus, clearSilenceTimer]);
+  }, [clearSilenceTimer]);
 
   const toggleRecording = useCallback(() => {
     if (isRecording) {
