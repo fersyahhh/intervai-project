@@ -61,8 +61,19 @@ Example format:
     const data = await response.json()
     const content = data.choices[0].message.content
     
-    // We expect the LLM to return valid JSON because of response_format: { type: "json_object" }
-    const parsedData = JSON.parse(content)
+    let parsedData;
+    try {
+      // Try parsing directly
+      parsedData = JSON.parse(content);
+    } catch (e) {
+      // Fallback if LLM wraps in markdown
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        parsedData = JSON.parse(jsonMatch[1]);
+      } else {
+        throw new Error("Gagal mem-parsing JSON: " + content);
+      }
+    }
 
     return new Response(JSON.stringify(parsedData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

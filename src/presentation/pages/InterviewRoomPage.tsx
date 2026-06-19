@@ -1,15 +1,23 @@
-import { Link } from 'react-router-dom';
-import { Mic, Square, Loader2, AlertCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mic, Square, Loader2, AlertCircle, Send } from 'lucide-react';
+import { useState } from 'react';
+import { supabase } from '../../config/supabase';
 import { useInterviewStore } from '../../store/useInterviewStore';
 import { useSpeechToText } from '../../hooks/useSpeechToText';
 
 export default function InterviewRoomPage() {
+  const navigate = useNavigate();
   const {
     position,
     questions,
     currentQuestionIndex,
     transcript,
-    status
+    status,
+    setStatus,
+    saveCurrentAnswerFeedback,
+    nextQuestion,
+    finishInterview,
+    clearTranscript
   } = useInterviewStore();
 
   const {
@@ -19,16 +27,82 @@ export default function InterviewRoomPage() {
     toggleRecording
   } = useSpeechToText();
 
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
+
   const isProcessing = status === 'processing';
   
+  // If we've answered all questions, we shouldn't be on this page, or we should show a completion screen.
+  // For safety, let's redirect to report if index out of bounds.
+  if (questions.length > 0 && currentQuestionIndex >= questions.length) {
+    navigate('/report');
+    return null;
+  }
+
   const currentQuestion = questions.length > 0 
     ? questions[currentQuestionIndex] 
     : "Ceritakan tentang proyek paling menantang yang pernah Anda tangani dan bagaimana pendekatan Anda dalam menyelesaikannya.";
   
-  const displayPosition = position || "Frontend Engineer";
+  const displayPosition = position || "Posisi Pekerjaan";
   const questionNumber = currentQuestionIndex + 1;
   const totalQuestions = questions.length > 0 ? questions.length : 5;
   const progressPercentage = (questionNumber / totalQuestions) * 100;
+
+  const handleSubmitAnswer = async () => {
+    if (!transcript.trim()) {
+      setEvaluationError('Jawaban kosong. Silakan gunakan mikrofon untuk merekam jawaban Anda.');
+      return;
+    }
+
+    setStatus('processing');
+    setEvaluationError(null);
+
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('evaluate-answer', {
+        body: {
+          position: displayPosition,
+          question: currentQuestion,
+          answer: transcript
+        }
+      });
+
+      if (functionError) {
+        throw new Error(`Edge Function Error: ${functionError.message}`);
+      }
+
+      const parsedScore = Number(data.score);
+      if (!data || isNaN(parsedScore)) {
+        throw new Error('Respons LLM Groq tidak valid (Format skor salah).');
+      }
+
+      // Save feedback
+      saveCurrentAnswerFeedback(transcript, {
+        score: parsedScore,
+        feedback: data.feedback,
+        corrections: data.corrections || [],
+        strengths: data.strengths || [],
+        improvements: data.improvements || []
+      });
+
+      // Proceed to next question or finish
+      clearTranscript();
+      
+      if (currentQuestionIndex + 1 < totalQuestions) {
+        nextQuestion();
+      } else {
+        // Calculate average score
+        const allFeedbacks = useInterviewStore.getState().detailedFeedbacks;
+        const totalScore = allFeedbacks.reduce((sum, item) => sum + (item.feedback?.score || 0), 0);
+        const avgScore = totalScore / allFeedbacks.length;
+        finishInterview(avgScore);
+        navigate('/report');
+      }
+
+    } catch (err: any) {
+      console.error(err);
+      setEvaluationError(err.message || 'Gagal mengevaluasi jawaban.');
+      setStatus('idle');
+    }
+  };
 
   return (
     <div className="bg-transparent pb-8 animate-fade-in-up relative">
@@ -71,10 +145,10 @@ export default function InterviewRoomPage() {
           </div>
         )}
 
-        {error && isSupported && (
+        {(error || evaluationError) && isSupported && (
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 shadow-sm">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
-            <p className="text-sm font-medium">{error}</p>
+            <p className="text-sm font-medium">{error || evaluationError}</p>
           </div>
         )}
 
@@ -83,7 +157,6 @@ export default function InterviewRoomPage() {
           
           {/* Question Section */}
           <div className="p-8 md:p-12 relative overflow-hidden">
-            {/* Subtle gradient wash behind text */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
             
             <div className="relative z-10 max-w-3xl">
@@ -116,7 +189,7 @@ export default function InterviewRoomPage() {
               ) : isProcessing ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  <span className="animate-pulse font-medium text-sm">Menyimpan respons...</span>
+                  <span className="animate-pulse font-medium text-sm">Menyimpan respons & mengevaluasi dengan AI...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
@@ -127,7 +200,7 @@ export default function InterviewRoomPage() {
 
             {/* Bottom Action Bar */}
             <div className="flex items-center justify-between mt-12">
-              <div className="w-32 flex items-center">
+              <div className="w-40 flex items-center">
                 {isRecording && (
                   <div className="flex items-center gap-2.5 px-3.5 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-200/60 font-semibold text-sm shadow-sm">
                     <span className="relative flex h-2 w-2">
@@ -144,26 +217,39 @@ export default function InterviewRoomPage() {
                 {isRecording && (
                    <div className="absolute inset-0 bg-blue-200 rounded-full animate-ping scale-150 duration-1000 opacity-40"></div>
                 )}
-                <button 
-                  onClick={toggleRecording}
-                  disabled={isProcessing || !isSupported}
-                  className={`relative z-10 flex items-center justify-center w-20 h-20 rounded-full transition-all active:scale-95 shadow-md ${
-                    isRecording 
-                      ? 'bg-white text-blue-600 border-4 border-blue-100 shadow-blue-500/20' 
-                      : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl hover:-translate-y-1'
-                  } ${(isProcessing || !isSupported) ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
-                >
-                  {isRecording ? <Square className="w-8 h-8" fill="currentColor" /> : <Mic className="w-8 h-8" />}
-                </button>
+                {!isProcessing && (
+                  <button 
+                    onClick={toggleRecording}
+                    disabled={isProcessing || !isSupported}
+                    className={`relative z-10 flex items-center justify-center w-20 h-20 rounded-full transition-all active:scale-95 shadow-md ${
+                      isRecording 
+                        ? 'bg-white text-blue-600 border-4 border-blue-100 shadow-blue-500/20' 
+                        : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl hover:-translate-y-1'
+                    } ${(isProcessing || !isSupported) ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                  >
+                    {isRecording ? <Square className="w-8 h-8" fill="currentColor" /> : <Mic className="w-8 h-8" />}
+                  </button>
+                )}
               </div>
 
-              <div className="w-32 flex justify-end">
-                <Link 
-                  to="/report" 
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 shadow-sm"
-                >
-                  Selesai
-                </Link>
+              <div className="w-40 flex justify-end">
+                {!isRecording && transcript.trim().length > 0 && !isProcessing && (
+                  <button 
+                    onClick={handleSubmitAnswer}
+                    className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-all bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-xl shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  >
+                    {questionNumber === totalQuestions ? 'Selesai' : 'Lanjut'}
+                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                )}
+                {!isRecording && transcript.trim().length === 0 && !isProcessing && (
+                  <Link 
+                    to="/report" 
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-transparent hover:border-slate-200"
+                  >
+                    Akhiri Sesi
+                  </Link>
+                )}
               </div>
             </div>
           </div>

@@ -60,7 +60,18 @@ Ensure the feedback and all lists are in Indonesian language. Do not output any 
 
     const data = await response.json()
     const content = data.choices[0].message.content
-    const parsedData = JSON.parse(content)
+    
+    let parsedData;
+    try {
+      parsedData = JSON.parse(content);
+    } catch (e) {
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        parsedData = JSON.parse(jsonMatch[1]);
+      } else {
+        throw new Error("Gagal mem-parsing JSON: " + content);
+      }
+    }
 
     return new Response(JSON.stringify(parsedData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
