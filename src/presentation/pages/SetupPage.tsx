@@ -6,11 +6,13 @@ export default function SetupPage() {
   const [dragActive, setDragActive] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8 animate-fade-in-up relative">
+    <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8 animate-fade-in-up relative">
       
-      {/* Very subtle background texture */}
+      {/* Background blueprint texture matching landing page */}
+      <div className="absolute inset-0 blueprint-grid opacity-60 -z-10 pointer-events-none"></div>
+      
+      {/* Very subtle top gradient wash */}
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent -z-10"></div>
-      <div className="absolute inset-0 blueprint-grid opacity-[0.15] -z-10 pointer-events-none [mask-image:linear-gradient(to_bottom,white_10%,transparent_60%)]"></div>
 
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Header */}
