@@ -24,6 +24,7 @@ interface SpeechRecognition extends EventTarget {
   onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
   onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
   onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
 }
 
 declare global {
@@ -40,6 +41,10 @@ export function useSpeechToText() {
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Track if we intentionally want to keep recording
+  // This helps auto-restart the API if it stops due to silence
+  const shouldBeRecordingRef = useRef(false);
 
   // Connect to Zustand store
   const appendTranscript = useInterviewStore((state) => state.appendTranscript);
@@ -61,7 +66,7 @@ export function useSpeechToText() {
     if (isRecording) {
       silenceTimerRef.current = setTimeout(() => {
         incrementHesitation();
-        console.log('Hesitation detected! (+1)');
+        console.log('⚠️ [SpeechToText] Hesitation detected! (+1)');
         // Restart timer after detecting hesitation
         resetSilenceTimer();
       }, SILENCE_THRESHOLD_MS);
@@ -85,6 +90,7 @@ export function useSpeechToText() {
     // Add logging for start event
     recognition.onstart = () => {
       console.log('🎙️ [SpeechToText] Microphone activated, listening started.');
+      setIsRecording(true);
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -114,27 +120,51 @@ export function useSpeechToText() {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('❌ [SpeechToText] Error mendeteksi suara:', event.error);
+      
+      // 'no-speech' happens when user is silent for a while. We can safely ignore it.
+      // The onend event will fire right after this and we will auto-restart.
+      if (event.error === 'no-speech') {
+        return;
+      }
+      
       setError(`Terjadi kesalahan pada mikrofon: ${event.error}`);
-      stopRecording();
+      shouldBeRecordingRef.current = false;
+      setIsRecording(false);
+      setStatus('processing');
+      clearSilenceTimer();
     };
 
     recognition.onend = () => {
-      console.log('🎙️ [SpeechToText] Sesi mendengarkan berhenti otomatis.');
-      // If it ends unexpectedly but we are still supposed to be recording, we might want to restart
-      // But for MVP, we just handle graceful stops
-      setIsRecording(false);
-      clearSilenceTimer();
+      console.log('🎙️ [SpeechToText] Sesi mendengarkan berhenti.');
+      
+      // Auto-restart if we didn't explicitly stop it
+      if (shouldBeRecordingRef.current) {
+        console.log('🔄 [SpeechToText] Auto-restart Web Speech API (menjaga tetap mendengarkan)...');
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error('❌ [SpeechToText] Gagal merestart otomatis:', e);
+          shouldBeRecordingRef.current = false;
+          setIsRecording(false);
+          setStatus('processing');
+          clearSilenceTimer();
+        }
+      } else {
+        setIsRecording(false);
+        clearSilenceTimer();
+      }
     };
 
     recognitionRef.current = recognition;
 
     return () => {
       if (recognitionRef.current) {
+        shouldBeRecordingRef.current = false;
         recognitionRef.current.abort();
       }
       clearSilenceTimer();
     };
-  }, [appendTranscript, resetSilenceTimer, clearSilenceTimer]);
+  }, [appendTranscript, resetSilenceTimer, clearSilenceTimer, setStatus]);
 
   // Effect to manage the silence timer based on recording state
   useEffect(() => {
@@ -150,8 +180,8 @@ export function useSpeechToText() {
     if (!isSupported || !recognitionRef.current) return;
 
     try {
+      shouldBeRecordingRef.current = true;
       recognitionRef.current.start();
-      setIsRecording(true);
       setStatus('recording');
     } catch (err) {
       console.error('Failed to start recording:', err);
@@ -162,6 +192,7 @@ export function useSpeechToText() {
     if (!isSupported || !recognitionRef.current) return;
 
     try {
+      shouldBeRecordingRef.current = false;
       recognitionRef.current.stop();
       setIsRecording(false);
       setStatus('processing');
