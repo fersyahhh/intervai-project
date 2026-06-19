@@ -29,6 +29,7 @@ export default function AuthLayout() {
         {/* Auth Card */}
         <div className="glass-card rounded-2xl shadow-xl p-8 sm:p-10">
           <Outlet />
+        </div>
       </div>
     </div>
   );
