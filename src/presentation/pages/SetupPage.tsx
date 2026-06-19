@@ -98,6 +98,16 @@ export default function SetupPage() {
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent -z-10 rounded-3xl opacity-50"></div>
 
       <div className="max-w-4xl mx-auto space-y-12">
+        {/* Back to Home Button */}
+        <div className="flex justify-start">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-50"
+          >
+            ← Kembali ke Home
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
