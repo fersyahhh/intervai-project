@@ -20,8 +20,8 @@ export default function DashboardLayout() {
         </nav>
       </header>
 
-      <main className="flex-grow p-6 md:p-8 lg:p-12">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-grow p-6 md:p-8 lg:p-12 blueprint-bg relative">
+        <div className="max-w-6xl mx-auto relative z-10">
           <Outlet />
         </div>
       </main>
