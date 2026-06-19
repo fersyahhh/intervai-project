@@ -74,6 +74,10 @@ export default function SetupPage() {
         throw new Error('Respons LLM Groq tidak valid.');
       }
 
+      // DEBUG: Check how many questions were generated
+      console.log('🔍 Questions received from Edge Function:', data.questions);
+      console.log('🔢 Total questions:', data.questions.length);
+
       // 4. Update Store and Navigate
       setInterviewContext(crypto.randomUUID(), position, jobDescription, fileName);
       setQuestions(data.questions);

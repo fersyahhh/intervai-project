@@ -47,6 +47,12 @@ export default function InterviewRoomPage() {
   const totalQuestions = questions.length > 0 ? questions.length : 5;
   const progressPercentage = (questionNumber / totalQuestions) * 100;
 
+  // DEBUG: Track question state
+  console.log('🎯 Current Question Index:', currentQuestionIndex);
+  console.log('📝 Current Question:', currentQuestion);
+  console.log('📊 Total Questions in Store:', questions.length);
+  console.log('🔢 All Questions:', questions);
+
   const handleSubmitAnswer = async () => {
     if (!transcript.trim()) {
       setEvaluationError('Jawaban kosong. Silakan gunakan mikrofon untuk merekam jawaban Anda.');

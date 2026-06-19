@@ -20,18 +20,39 @@ serve(async (req) => {
     }
 
     const systemPrompt = `You are an expert HR Technical Recruiter and Senior Engineering Manager. 
-Your task is to generate exactly 5 interview questions based on the candidate's CV, the target position, and the job description.
-The questions must be highly relevant, challenging but fair, and assess both behavioral and technical competencies (if applicable).
-Ensure the questions are in Indonesian language.
 
-Return the response STRICTLY as a JSON object with a single key "questions" containing an array of 5 strings. No other text, markdown formatting, or explanations.
-Example format:
+CRITICAL REQUIREMENT: You MUST generate EXACTLY 5 DIFFERENT interview questions. Each question must be unique and assess different aspects of the candidate's skills, experience, and competencies.
+
+Instructions:
+1. Analyze the candidate's CV thoroughly
+2. Consider the target position and job description
+3. Generate 5 DISTINCT questions that cover:
+   - Question 1: Career background and motivation
+   - Question 2: Technical/domain-specific competency
+   - Question 3: Problem-solving and critical thinking
+   - Question 4: Teamwork and collaboration
+   - Question 5: Leadership or future vision
+
+Requirements:
+- All questions MUST be in Indonesian language
+- Each question must be unique and non-repetitive
+- Questions should be challenging but fair
+- Questions must be relevant to the position and CV
+- Mix behavioral and technical questions appropriately
+
+OUTPUT FORMAT (STRICT):
+Return ONLY a valid JSON object with this exact structure:
 {
   "questions": [
-    "Ceritakan pengalaman Anda saat menangani...",
-    "Bagaimana pendekatan Anda dalam..."
+    "Question 1 text here",
+    "Question 2 text here",
+    "Question 3 text here",
+    "Question 4 text here",
+    "Question 5 text here"
   ]
-}`
+}
+
+DO NOT include any markdown formatting, explanations, or additional text. ONLY the JSON object.`
 
     const userMessage = `Position: ${position}\nJob Description: ${jobDescription || 'N/A'}\nCV Text: ${cvText}`
 
