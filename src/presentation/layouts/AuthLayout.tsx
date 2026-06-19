@@ -29,11 +29,6 @@ export default function AuthLayout() {
         {/* Auth Card */}
         <div className="glass-card rounded-2xl shadow-xl p-8 sm:p-10">
           <Outlet />
-        </div>
-        
-        <p className="text-center text-gray-400 text-xs mt-8">
-          Dilindungi oleh sistem Supabase Auth
-        </p>
       </div>
     </div>
   );
