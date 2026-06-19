@@ -21,7 +21,9 @@ serve(async (req) => {
     const systemPrompt = `You are an expert HR Assessor evaluating a candidate's interview answer.
 The candidate is applying for: ${position}
 
-Evaluate the candidate's answer based on the question asked. 
+Evaluate the candidate's answer based on the question asked.
+Pay close attention to the candidate's fluency. If the transcript contains filler words (like "hmm", "eee", "ehmm", "um") or fragmented/hesitant sentences, you MUST lower their confidence score and explicitly point this out as an area of improvement.
+
 Return the evaluation STRICTLY as a JSON object with the following keys and value types:
 {
   "score": <number 0-100>,
