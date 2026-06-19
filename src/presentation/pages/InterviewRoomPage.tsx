@@ -47,11 +47,6 @@ export default function InterviewRoomPage() {
   const totalQuestions = questions.length > 0 ? questions.length : 5;
   const progressPercentage = (questionNumber / totalQuestions) * 100;
 
-  // DEBUG: Track question state
-  console.log('🎯 Current Question Index:', currentQuestionIndex);
-  console.log('📝 Current Question:', currentQuestion);
-  console.log('📊 Total Questions in Store:', questions.length);
-  console.log('🔢 All Questions:', questions);
 
   const handleSubmitAnswer = async () => {
     if (!transcript.trim()) {
@@ -145,14 +140,14 @@ export default function InterviewRoomPage() {
 
         {/* Warnings */}
         {!isSupported && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 shadow-sm">
+          <div className="bg-slate-100 border border-slate-300 text-slate-800 p-4 rounded-xl flex items-start gap-3 shadow-sm">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <p className="text-sm font-medium">Browser Anda tidak mendukung Web Speech API. Silakan gunakan Google Chrome untuk fitur ini.</p>
           </div>
         )}
 
         {(error || evaluationError) && isSupported && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3 shadow-sm">
+          <div className="bg-slate-100 border border-slate-300 text-slate-800 p-4 rounded-xl flex items-start gap-3 shadow-sm">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <p className="text-sm font-medium">{error || evaluationError}</p>
           </div>
