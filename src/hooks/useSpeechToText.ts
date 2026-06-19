@@ -121,9 +121,9 @@ export function useSpeechToText() {
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('❌ [SpeechToText] Error mendeteksi suara:', event.error);
       
-      // 'no-speech' happens when user is silent for a while. We can safely ignore it.
-      // The onend event will fire right after this and we will auto-restart.
-      if (event.error === 'no-speech') {
+      // 'no-speech' is normal during silence.
+      // 'aborted' happens during React StrictMode cleanup or when we manually stop it.
+      if (event.error === 'no-speech' || event.error === 'aborted') {
         return;
       }
       
@@ -140,15 +140,17 @@ export function useSpeechToText() {
       // Auto-restart if we didn't explicitly stop it
       if (shouldBeRecordingRef.current) {
         console.log('🔄 [SpeechToText] Auto-restart Web Speech API (menjaga tetap mendengarkan)...');
-        try {
-          recognition.start();
-        } catch (e) {
-          console.error('❌ [SpeechToText] Gagal merestart otomatis:', e);
-          shouldBeRecordingRef.current = false;
-          setIsRecording(false);
-          setStatus('processing');
-          clearSilenceTimer();
-        }
+        
+        // Use a slight delay to ensure the browser has fully cleared the previous session
+        setTimeout(() => {
+          if (shouldBeRecordingRef.current) {
+            try {
+              recognition.start();
+            } catch (e) {
+              console.error('❌ [SpeechToText] Gagal merestart otomatis:', e);
+            }
+          }
+        }, 250);
       } else {
         setIsRecording(false);
         clearSilenceTimer();
