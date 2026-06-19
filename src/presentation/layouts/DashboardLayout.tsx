@@ -5,7 +5,7 @@ export default function DashboardLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-black">
       {/* Navbar Module could be extracted later */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2 text-blue-600 font-bold text-xl">
           <Briefcase className="w-6 h-6" />
           <span>IntervAI</span>

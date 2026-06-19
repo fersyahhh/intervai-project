@@ -26,12 +26,12 @@ export default function ReportDashboardPage() {
   const displayPosition = position || "Posisi Pekerjaan";
   const score = overallScore || 0;
 
-  // Score interpretation
+  // Score interpretation (Blue/Black/White only)
   const getScoreInterpretation = (score: number) => {
-    if (score >= 85) return { label: 'Sangat Baik', color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200' };
+    if (score >= 85) return { label: 'Sangat Baik', color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' };
     if (score >= 70) return { label: 'Baik', color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' };
-    if (score >= 60) return { label: 'Cukup', color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' };
-    return { label: 'Perlu Peningkatan', color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' };
+    if (score >= 60) return { label: 'Cukup', color: 'text-slate-600', bgColor: 'bg-slate-50', borderColor: 'border-slate-200' };
+    return { label: 'Perlu Peningkatan', color: 'text-slate-700', bgColor: 'bg-slate-100', borderColor: 'border-slate-300' };
   };
 
   const scoreInfo = getScoreInterpretation(score);
@@ -105,8 +105,8 @@ export default function ReportDashboardPage() {
 
                 <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-blue-600" />
                     </div>
                     <span className="text-2xl font-bold text-slate-900">{allStrengths.length}</span>
                   </div>
@@ -115,8 +115,8 @@ export default function ReportDashboardPage() {
 
                 <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <TrendingDown className="w-5 h-5 text-amber-600" />
+                    <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center">
+                      <TrendingDown className="w-5 h-5 text-slate-700" />
                     </div>
                     <span className="text-2xl font-bold text-slate-900">{allImprovements.length}</span>
                   </div>
@@ -125,8 +125,8 @@ export default function ReportDashboardPage() {
 
                 <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-slate-700" />
                     </div>
                     <span className="text-2xl font-bold text-slate-900">{allCorrections.length}</span>
                   </div>
@@ -192,14 +192,14 @@ export default function ReportDashboardPage() {
                 {/* Strengths */}
                 {item.feedback?.strengths && item.feedback.strengths.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-bold text-emerald-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
                       Kekuatan
                     </h4>
                     <ul className="space-y-2">
                       {item.feedback.strengths.map((strength, i) => (
                         <li key={i} className="flex gap-3 text-slate-700">
-                          <span className="text-emerald-500 font-bold">✓</span>
+                          <span className="text-blue-600 font-bold">✓</span>
                           <span>{strength}</span>
                         </li>
                       ))}
@@ -210,14 +210,14 @@ export default function ReportDashboardPage() {
                 {/* Improvements */}
                 {item.feedback?.improvements && item.feedback.improvements.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-bold text-amber-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" />
                       Area Pengembangan
                     </h4>
                     <ul className="space-y-2">
                       {item.feedback.improvements.map((improvement, i) => (
                         <li key={i} className="flex gap-3 text-slate-700">
-                          <span className="text-amber-500 font-bold">→</span>
+                          <span className="text-slate-600 font-bold">→</span>
                           <span>{improvement}</span>
                         </li>
                       ))}
@@ -228,14 +228,14 @@ export default function ReportDashboardPage() {
                 {/* Corrections (Filler Words, Pauses) */}
                 {item.feedback?.corrections && item.feedback.corrections.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-bold text-red-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4" />
                       Koreksi Verbal (Filler Words / Jeda)
                     </h4>
                     <ul className="space-y-2">
                       {item.feedback.corrections.map((correction, i) => (
                         <li key={i} className="flex gap-3 text-slate-700">
-                          <span className="text-red-500 font-bold">!</span>
+                          <span className="text-slate-600 font-bold">!</span>
                           <span>{correction}</span>
                         </li>
                       ))}
