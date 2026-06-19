@@ -79,18 +79,33 @@ export function useSpeechToText() {
 
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
-    recognition.interimResults = false; // We only process final results to append cleanly to the store
+    recognition.interimResults = true; // Enable interim results to show in console
     recognition.lang = 'id-ID';
+
+    // Add logging for start event
+    recognition.onstart = () => {
+      console.log('🎙️ [SpeechToText] Microphone activated, listening started.');
+    };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let newTranscript = '';
+      let interimTranscript = '';
+      
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           newTranscript += event.results[i][0].transcript + ' ';
+        } else {
+          interimTranscript += event.results[i][0].transcript;
         }
       }
 
+      // Log for debugging
+      if (interimTranscript.trim() !== '') {
+        console.log('🗣️ [SpeechToText] Sedang mendengarkan (Interim):', interimTranscript);
+      }
+
       if (newTranscript.trim() !== '') {
+        console.log('✅ [SpeechToText] Teks Final (Final):', newTranscript);
         appendTranscript(newTranscript);
         // User spoke, so reset the silence timer
         resetSilenceTimer();
@@ -98,12 +113,13 @@ export function useSpeechToText() {
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error', event.error);
+      console.error('❌ [SpeechToText] Error mendeteksi suara:', event.error);
       setError(`Terjadi kesalahan pada mikrofon: ${event.error}`);
       stopRecording();
     };
 
     recognition.onend = () => {
+      console.log('🎙️ [SpeechToText] Sesi mendengarkan berhenti otomatis.');
       // If it ends unexpectedly but we are still supposed to be recording, we might want to restart
       // But for MVP, we just handle graceful stops
       setIsRecording(false);
