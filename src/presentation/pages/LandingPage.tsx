@@ -80,16 +80,10 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/login"
-              className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
-            >
-              Masuk
-            </Link>
-            <Link
               to="/setup"
               className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Mulai Gratis
+              Masuk Gratis
             </Link>
           </div>
         </div>
