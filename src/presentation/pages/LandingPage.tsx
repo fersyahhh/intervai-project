@@ -14,6 +14,7 @@ import {
   Globe,
   CheckCircle,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 /* ───────────────────────────────────
    Sub-components (kept in-file for 
@@ -60,6 +61,8 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
    ─────────────────────────────────── */
 
 export default function LandingPage() {
+  const { user, signOut } = useAuth();
+  
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
       {/* ========== NAVBAR ========== */}
@@ -79,17 +82,26 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {user ? (
+              <button
+                onClick={signOut}
+                className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
+              >
+                Log out
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
+              >
+                Log in
+              </Link>
+            )}
             <Link
-              to="/login"
-              className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/setup"
+              to={user ? "/setup" : "/setup"}
               className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Masuk Gratis
+              {user ? "Dashboard" : "Masuk Gratis"}
             </Link>
           </div>
         </div>
