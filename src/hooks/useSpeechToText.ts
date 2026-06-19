@@ -187,7 +187,7 @@ export function useSpeechToText() {
       shouldBeRecordingRef.current = false;
       recognitionRef.current.stop();
       setIsRecording(false);
-      storeActionsRef.current.setStatus('processing');
+      storeActionsRef.current.setStatus('idle');
       clearSilenceTimer();
       console.log('⏹️ [SpeechToText] User pressed STOP');
     } catch (err) {

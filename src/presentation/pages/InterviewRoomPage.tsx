@@ -177,7 +177,12 @@ export default function InterviewRoomPage() {
           <div className="p-8 md:p-12 min-h-[350px] flex flex-col justify-between bg-slate-50/30 relative">
             
             <div className="flex-grow max-w-3xl">
-              {isRecording || transcript ? (
+              {isProcessing ? (
+                <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  <span className="animate-pulse font-medium text-sm">Menyimpan respons & mengevaluasi dengan AI...</span>
+                </div>
+              ) : isRecording || transcript ? (
                 <div className="prose prose-slate prose-lg">
                   <p className="text-slate-700 font-medium leading-[1.6]">
                     {transcript}
@@ -185,11 +190,6 @@ export default function InterviewRoomPage() {
                       <span className="w-2 h-5 bg-blue-600 inline-block ml-2 animate-pulse align-middle rounded-sm" />
                     )}
                   </p>
-                </div>
-              ) : isProcessing ? (
-                <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  <span className="animate-pulse font-medium text-sm">Menyimpan respons & mengevaluasi dengan AI...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
