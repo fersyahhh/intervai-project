@@ -101,7 +101,7 @@ export default function LandingPage() {
               to={user ? "/setup" : "/setup"}
               className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              {user ? "Dashboard" : "Masuk Gratis"}
+              {user ? "Mulai saja" : "Masuk Gratis"}
             </Link>
           </div>
         </div>
