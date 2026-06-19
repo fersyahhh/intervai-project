@@ -1,7 +1,22 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Briefcase } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function DashboardLayout() {
+  const { user } = useAuth();
+  
+  // Extract initials from user's full name
+  const getInitials = () => {
+    const name = user?.user_metadata?.full_name;
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-black">
       {/* Navbar Module could be extracted later */}
@@ -15,7 +30,7 @@ export default function DashboardLayout() {
             New Interview
           </Link>
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-            U
+            {getInitials()}
           </div>
         </nav>
       </header>

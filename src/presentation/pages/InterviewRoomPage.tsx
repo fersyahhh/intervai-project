@@ -4,9 +4,12 @@ import { useState } from 'react';
 import { supabase } from '../../config/supabase';
 import { useInterviewStore } from '../../store/useInterviewStore';
 import { useSpeechToText } from '../../hooks/useSpeechToText';
+import { useAuth } from '../../context/AuthContext';
 
 export default function InterviewRoomPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
   const {
     position,
     questions,
@@ -120,7 +123,9 @@ export default function InterviewRoomPage() {
               {questionNumber}
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-tight">Wawancara Berlangsung</h1>
+              <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-tight">
+                Halo, {user?.user_metadata?.full_name?.split(' ')[0] || 'Kandidat'}! 👋
+              </h1>
               <p className="text-sm text-slate-500 font-medium">{displayPosition}</p>
             </div>
           </div>
