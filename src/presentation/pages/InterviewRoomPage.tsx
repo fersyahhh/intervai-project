@@ -123,7 +123,7 @@ export default function InterviewRoomPage() {
           
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end gap-1.5">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Progress {questionNumber}/{totalQuestions}</span>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pertanyaan {questionNumber} dari {totalQuestions}</span>
               <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-black rounded-full transition-all duration-500 ease-out" 
@@ -228,23 +228,30 @@ export default function InterviewRoomPage() {
                 )}
               </div>
 
-              <div className="w-40 flex justify-end">
-                {!isRecording && transcript.trim().length > 0 && !isProcessing && (
+              <div className="w-40 flex flex-col justify-end items-end gap-2">
+                <button 
+                  onClick={handleSubmitAnswer}
+                  disabled={isRecording || transcript.trim().length === 0 || isProcessing}
+                  className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-all bg-black hover:bg-gray-800 px-6 py-3 rounded-lg shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {questionNumber === totalQuestions ? 'Selesai' : 'Kirim & Lanjut'}
+                  <Send className="w-4 h-4" />
+                </button>
+                
+                {transcript.trim().length === 0 && !isRecording && !isProcessing && (
                   <button 
-                    onClick={handleSubmitAnswer}
-                    className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-all bg-black hover:bg-gray-800 px-6 py-3 rounded-lg shadow-sm"
+                    onClick={() => {
+                      // Allow skipping question
+                      if (questionNumber === totalQuestions) {
+                        navigate('/report');
+                      } else {
+                        nextQuestion();
+                      }
+                    }}
+                    className="text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {questionNumber === totalQuestions ? 'Selesai' : 'Lanjut'}
-                    <Send className="w-4 h-4" />
+                    Lewati Pertanyaan
                   </button>
-                )}
-                {!isRecording && transcript.trim().length === 0 && !isProcessing && (
-                  <Link 
-                    to="/report" 
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors bg-white hover:bg-gray-50 px-5 py-2.5 rounded-lg border border-gray-200"
-                  >
-                    Akhiri Sesi
-                  </Link>
                 )}
               </div>
             </div>
