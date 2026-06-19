@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { UploadCloud, FileText, Briefcase, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../config/supabase';
