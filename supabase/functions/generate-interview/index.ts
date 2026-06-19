@@ -19,7 +19,7 @@ serve(async (req) => {
       throw new Error('GROQ_API_KEY is not set')
     }
 
-    const systemPrompt = `You are an expert HR Technical Recruiter and Senior Engineering Manager. 
+    const systemPrompt = `You are an expert HR Technical Recruiter. 
 
 CRITICAL REQUIREMENT: You MUST generate EXACTLY 5 DIFFERENT interview questions. Each question must be unique and assess different aspects of the candidate's skills, experience, and competencies.
 
