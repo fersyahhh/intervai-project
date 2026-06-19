@@ -1,96 +1,116 @@
 import { Link } from 'react-router-dom';
 import { UploadCloud, FileText, Briefcase, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 
 export default function SetupPage() {
+  const [dragActive, setDragActive] = useState(false);
+
   return (
-    <div className="max-w-5xl mx-auto py-12 animate-fade-in-up relative">
-      {/* Background blueprint subtle texture matching landing page */}
-      <div className="absolute inset-0 blueprint-grid opacity-50 -z-10 pointer-events-none [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+    <div className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8 animate-fade-in-up relative">
+      
+      {/* Very subtle background texture */}
+      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent -z-10"></div>
+      <div className="absolute inset-0 blueprint-grid opacity-[0.15] -z-10 pointer-events-none [mask-image:linear-gradient(to_bottom,white_10%,transparent_60%)]"></div>
 
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-black">
-          Persiapan Wawancara
-        </h1>
-        <p className="text-gray-500 text-lg leading-relaxed max-w-2xl mx-auto">
-          Lengkapi detail posisi yang dilamar dan unggah CV Anda. AI kami akan merancang pertanyaan yang 100% relevan.
-        </p>
-      </div>
+      <div className="max-w-4xl mx-auto space-y-12">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+            Kustomisasi Sesi
+          </h1>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+            Atur konteks wawancara dengan posisi pekerjaan dan riwayat hidup Anda untuk mendapatkan pertanyaan yang presisi.
+          </p>
+        </div>
 
-      <div className="bg-white border-2 border-gray-100 rounded-3xl overflow-hidden shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y-2 md:divide-y-0 md:divide-x-2 divide-gray-100">
-          
-          {/* Job Details Cell */}
-          <div className="p-8 md:p-10 space-y-8 bg-white transition-colors relative overflow-hidden group">
+        {/* Main Content Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
             
-            <div className="flex items-center gap-4 mb-2 relative z-10">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 bg-blue-100 rounded-full translate-x-1 translate-y-1 group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform"></div>
-                <div className="absolute inset-0 bg-white border-2 border-blue-600 rounded-full flex items-center justify-center">
+            {/* Left Column: Job Details */}
+            <div className="p-8 md:p-10 space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center">
                   <Briefcase className="w-5 h-5 text-blue-600" />
                 </div>
+                <h2 className="text-lg font-semibold text-slate-900">Konteks Peran</h2>
               </div>
-              <h2 className="text-xl font-bold text-black">Konteks Pekerjaan</h2>
+
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Posisi Pekerjaan
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-sm"
+                    placeholder="Contoh: Senior Frontend Engineer" 
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Deskripsi Pekerjaan
+                    </label>
+                    <span className="text-xs text-slate-400 font-medium">Opsional</span>
+                  </div>
+                  <textarea 
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-sm resize-none h-40 leading-relaxed"
+                    placeholder="Salin dan tempel deskripsi dari lowongan kerja untuk akurasi terbaik..."
+                  ></textarea>
+                </div>
+              </div>
             </div>
-            
-            <div className="space-y-6 relative z-10">
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Posisi Pekerjaan</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all font-medium text-black" 
-                  placeholder="e.g. Frontend Developer" 
-                />
+
+            {/* Right Column: CV Upload */}
+            <div className="p-8 md:p-10 space-y-8 bg-slate-50/50 flex flex-col justify-between">
+              
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-900/5 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-slate-900" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-900">Dokumen Resume</h2>
+                </div>
+
+                <label 
+                  onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                  onDragLeave={() => setDragActive(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragActive(false); }}
+                  className={`relative flex flex-col items-center justify-center w-full h-56 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+                    dragActive ? 'border-blue-500 bg-blue-50/50' : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                    <div className={`w-12 h-12 mb-4 rounded-full flex items-center justify-center transition-colors ${
+                      dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      <UploadCloud className="w-6 h-6" />
+                    </div>
+                    <p className="mb-1 text-sm font-semibold text-slate-900">
+                      Klik atau seret file PDF ke sini
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Maksimal ukuran file 5MB
+                    </p>
+                  </div>
+                  <input id="dropzone-file" type="file" className="hidden" accept=".pdf" />
+                </label>
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Deskripsi Lengkap (Job Desc)</label>
-                <textarea 
-                  className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all resize-none h-40 leading-relaxed font-medium text-black" 
-                  placeholder="Tempel persyaratan lengkap dari lowongan kerja di sini..."
-                ></textarea>
+
+              <div className="pt-8">
+                <Link 
+                  to="/interview" 
+                  className="group flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 active:scale-[0.98]"
+                >
+                  Mulai Simulasi
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
+
             </div>
           </div>
-
-          {/* CV Upload Cell */}
-          <div className="p-8 md:p-10 space-y-8 bg-white flex flex-col justify-between transition-colors group relative overflow-hidden">
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="relative w-12 h-12">
-                  <div className="absolute inset-0 bg-gray-200 rounded-full translate-x-1 translate-y-1 group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform"></div>
-                  <div className="absolute inset-0 bg-white border-2 border-black rounded-full flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-black" />
-                  </div>
-                </div>
-                <h2 className="text-xl font-bold text-black">Resume (CV)</h2>
-              </div>
-
-              <label className="group/dropzone relative flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 rounded-2xl bg-white hover:border-blue-600 transition-all cursor-pointer overflow-hidden">
-                <div className="absolute inset-0 diagonal-stripes-blue opacity-0 group-hover/dropzone:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
-                  <div className="w-14 h-14 mb-4 rounded-full bg-blue-50 text-blue-600 shadow-sm flex items-center justify-center group-hover/dropzone:-translate-y-2 transition-transform duration-300 border border-blue-100">
-                    <UploadCloud className="w-7 h-7" />
-                  </div>
-                  <p className="mb-2 text-sm text-black font-bold">
-                    <span className="text-blue-600">Klik untuk unggah</span> atau seret file PDF
-                  </p>
-                  <p className="text-xs text-gray-500 font-medium">Maksimal ukuran file 5MB</p>
-                </div>
-                <input id="dropzone-file" type="file" className="hidden" accept=".pdf" />
-              </label>
-            </div>
-            
-            <div className="pt-6 relative z-10">
-              <Link 
-                to="/interview" 
-                className="group/btn w-full flex items-center justify-center gap-2 py-4 bg-black text-white rounded-xl font-bold text-base hover:bg-gray-800 transition-all active:scale-[0.98] shadow-sm"
-              >
-                Mulai Simulasi
-                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1.5 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
