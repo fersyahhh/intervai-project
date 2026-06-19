@@ -73,76 +73,126 @@ export default function ReportDashboardPage() {
           </div>
         </header>
 
-        {/* Score Summary Card */}
-        <div className={`bg-white rounded-3xl border ${scoreInfo.borderColor} shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden`}>
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+        {/* Performance Overview - Consistent with Landing Page */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+          
+          {/* Header with Score */}
+          <div className="relative bg-gradient-to-br from-blue-50 to-white border-b border-gray-100 px-8 md:px-12 py-10">
+            {/* Subtle glow orb (like landing page) */}
+            <div className="absolute top-0 right-0 w-64 h-64 glow-orb glow-orb-blue opacity-30 animate-float-slow"></div>
             
-            {/* Overall Score Display */}
-            <div className={`p-10 ${scoreInfo.bgColor} flex flex-col items-center justify-center text-center`}>
-              <div className={`relative w-36 h-36 flex items-center justify-center rounded-full border-8 ${scoreInfo.borderColor} mb-6 bg-white shadow-sm`}>
-                <span className={`text-5xl font-bold ${scoreInfo.color}`}>{Math.round(score)}</span>
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 mb-2">Skor Keseluruhan</h2>
-              <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${scoreInfo.bgColor} ${scoreInfo.color} border ${scoreInfo.borderColor}`}>
-                {scoreInfo.label}
-              </span>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="p-8 md:col-span-2 space-y-6 bg-white">
-              <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Ringkasan Performa</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <span className="text-2xl font-bold text-slate-900">{detailedFeedbacks.length}</span>
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row md:items-end gap-6 mb-8">
+                {/* Large Score Display */}
+                <div className="flex items-baseline gap-3">
+                  <div className="text-7xl md:text-8xl font-black tracking-tighter text-gray-900">
+                    {Math.round(score)}
                   </div>
-                  <p className="text-sm font-medium text-slate-600">Pertanyaan Dijawab</p>
+                  <div className="text-2xl text-gray-300 font-bold mb-2">/100</div>
                 </div>
-
-                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <span className="text-2xl font-bold text-slate-900">{allStrengths.length}</span>
-                  </div>
-                  <p className="text-sm font-medium text-slate-600">Kekuatan Teridentifikasi</p>
-                </div>
-
-                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <TrendingDown className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <span className="text-2xl font-bold text-slate-900">{allImprovements.length}</span>
-                  </div>
-                  <p className="text-sm font-medium text-slate-600">Area Pengembangan</p>
-                </div>
-
-                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                      <AlertTriangle className="w-5 h-5 text-red-600" />
-                    </div>
-                    <span className="text-2xl font-bold text-slate-900">{allCorrections.length}</span>
-                  </div>
-                  <p className="text-sm font-medium text-slate-600">Koreksi Verbal</p>
+                
+                {/* Score Label */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-400 uppercase tracking-widest">
+                    Skor Keseluruhan
+                  </span>
+                  <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 w-fit ${
+                    scoreInfo.color === 'text-emerald-600' 
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                      : scoreInfo.color === 'text-blue-600'
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : scoreInfo.color === 'text-amber-600'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {scoreInfo.label}
+                  </span>
                 </div>
               </div>
 
-              <button 
-                onClick={handleStartNew}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-all shadow-sm mt-4"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Mulai Sesi Latihan Baru
-              </button>
+              {/* Performance Bar - Clean Version */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-semibold text-gray-400 uppercase tracking-widest">
+                  <span>Performa Anda</span>
+                  <span>{Math.round(score)}%</span>
+                </div>
+                
+                {/* Progress bar with gradient */}
+                <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                      score >= 85 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
+                      score >= 70 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                      score >= 60 ? 'bg-gradient-to-r from-amber-500 to-amber-400' :
+                      'bg-gradient-to-r from-rose-500 to-rose-400'
+                    }`}
+                    style={{ width: `${score}%` }}
+                  />
+                </div>
+                
+                {/* Performance markers */}
+                <div className="flex justify-between text-xs text-gray-400 font-medium pt-1">
+                  <span className="text-rose-500">0 - Perlu Kerja</span>
+                  <span className="text-amber-500 hidden sm:inline">60 - Cukup</span>
+                  <span className="text-blue-500 hidden sm:inline">70 - Baik</span>
+                  <span className="text-emerald-500">85+ - Excellent</span>
+                </div>
+              </div>
             </div>
+          </div>
 
+          {/* Stats Grid - Bento Style (like landing page features) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-gray-100">
+            <div className="p-6 hover:bg-gray-50/50 transition-colors group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                  <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="text-3xl font-black text-gray-900">{detailedFeedbacks.length}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-500">Pertanyaan</p>
+            </div>
+            
+            <div className="p-6 hover:bg-gray-50/50 transition-colors group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+                </div>
+                <span className="text-3xl font-black text-gray-900">{allStrengths.length}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-500">Kekuatan</p>
+            </div>
+            
+            <div className="p-6 hover:bg-gray-50/50 transition-colors group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                  <TrendingDown className="w-5 h-5 text-amber-600" />
+                </div>
+                <span className="text-3xl font-black text-gray-900">{allImprovements.length}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-500">Peningkatan</p>
+            </div>
+            
+            <div className="p-6 hover:bg-gray-50/50 transition-colors group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                  <AlertTriangle className="w-5 h-5 text-rose-600" />
+                </div>
+                <span className="text-3xl font-black text-gray-900">{allCorrections.length}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-500">Koreksi</p>
+            </div>
+          </div>
+
+          {/* CTA Bar */}
+          <div className="border-t border-gray-100 bg-gray-50 px-8 py-6">
+            <button 
+              onClick={handleStartNew}
+              className="w-full flex items-center justify-center gap-2.5 px-7 py-3.5 bg-black text-white rounded-lg text-base font-semibold hover:bg-gray-800 transition-all hover:gap-4"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Mulai Latihan Baru
+            </button>
           </div>
         </div>
 
