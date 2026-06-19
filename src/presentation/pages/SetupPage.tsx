@@ -1,9 +1,91 @@
-import { Link } from 'react-router-dom';
-import { UploadCloud, FileText, Briefcase, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { UploadCloud, FileText, Briefcase, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { supabase } from '../../config/supabase';
+import { useInterviewStore } from '../../store/useInterviewStore';
+import { extractTextFromPDF } from '../../utils/pdfParser';
 
 export default function SetupPage() {
+  const navigate = useNavigate();
+  const setInterviewContext = useInterviewStore(state => state.setInterviewContext);
+  const setQuestions = useInterviewStore(state => state.setQuestions);
+  
   const [dragActive, setDragActive] = useState(false);
+  const [position, setPosition] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      setError(null);
+    }
+  };
+
+  const handleStartSimulation = async () => {
+    if (!position.trim()) {
+      setError('Posisi pekerjaan wajib diisi.');
+      return;
+    }
+    if (!file) {
+      setError('Mohon unggah CV Anda (PDF).');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // 1. Extract text from PDF
+      const cvText = await extractTextFromPDF(file);
+
+      // 2. Upload to Supabase Storage
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        throw new Error('Sesi tidak valid. Anda harus login terlebih dahulu.');
+      }
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${authData.user.id}/${crypto.randomUUID()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('cv-uploads')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error(`Gagal mengunggah CV: ${uploadError.message}`);
+      }
+
+      // 3. Call Edge Function to generate questions
+      const { data, error: functionError } = await supabase.functions.invoke('generate-interview', {
+        body: {
+          position,
+          jobDescription,
+          cvText
+        }
+      });
+
+      if (functionError) {
+        throw new Error(`Edge Function Error: ${functionError.message}`);
+      }
+
+      if (!data || !data.questions) {
+        throw new Error('Respons LLM Groq tidak valid.');
+      }
+
+      // 4. Update Store and Navigate
+      setInterviewContext(crypto.randomUUID(), position, jobDescription, fileName);
+      setQuestions(data.questions);
+      navigate('/interview');
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Terjadi kesalahan sistem.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="bg-transparent pb-12 animate-fade-in-up relative">
@@ -21,6 +103,13 @@ export default function SetupPage() {
             Atur konteks wawancara dengan posisi pekerjaan dan riwayat hidup Anda untuk mendapatkan pertanyaan yang presisi.
           </p>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl flex items-center gap-3 shadow-sm mx-4 sm:mx-0">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <p className="text-sm font-semibold">{error}</p>
+          </div>
+        )}
 
         {/* Main Content Card */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
@@ -42,6 +131,9 @@ export default function SetupPage() {
                   </label>
                   <input 
                     type="text" 
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                    disabled={isGenerating}
                     className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-sm"
                     placeholder="Contoh: Senior Frontend Engineer" 
                   />
@@ -55,6 +147,9 @@ export default function SetupPage() {
                     <span className="text-xs text-slate-400 font-medium">Opsional</span>
                   </div>
                   <textarea 
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    disabled={isGenerating}
                     className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-sm resize-none h-40 leading-relaxed"
                     placeholder="Salin dan tempel deskripsi dari lowongan kerja untuk akurasi terbaik..."
                   ></textarea>
@@ -76,8 +171,15 @@ export default function SetupPage() {
                 <label 
                   onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                   onDragLeave={() => setDragActive(false)}
-                  onDrop={(e) => { e.preventDefault(); setDragActive(false); }}
-                  className={`relative flex flex-col items-center justify-center w-full h-56 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+                  onDrop={(e) => { 
+                    e.preventDefault(); 
+                    setDragActive(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      setFile(e.dataTransfer.files[0]);
+                      setError(null);
+                    }
+                  }}
+                  className={`relative flex flex-col items-center justify-center w-full h-56 rounded-2xl border-2 border-dashed transition-all ${!isGenerating ? 'cursor-pointer' : 'cursor-not-allowed'} ${
                     dragActive ? 'border-blue-500 bg-blue-50/50' : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50'
                   }`}
                 >
@@ -85,27 +187,37 @@ export default function SetupPage() {
                     <div className={`w-12 h-12 mb-4 rounded-full flex items-center justify-center transition-colors ${
                       dragActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
                     }`}>
-                      <UploadCloud className="w-6 h-6" />
+                      {file ? <FileText className="w-6 h-6 text-blue-600" /> : <UploadCloud className="w-6 h-6" />}
                     </div>
                     <p className="mb-1 text-sm font-semibold text-slate-900">
-                      Klik atau seret file PDF ke sini
+                      {file ? file.name : 'Klik atau seret file PDF ke sini'}
                     </p>
                     <p className="text-xs text-slate-500 font-medium">
-                      Maksimal ukuran file 5MB
+                      {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Maksimal ukuran file 5MB'}
                     </p>
                   </div>
-                  <input id="dropzone-file" type="file" className="hidden" accept=".pdf" />
+                  <input id="dropzone-file" type="file" className="hidden" accept=".pdf" onChange={handleFileChange} disabled={isGenerating} />
                 </label>
               </div>
 
               <div className="pt-8">
-                <Link 
-                  to="/interview" 
-                  className="group flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 active:scale-[0.98]"
+                <button 
+                  onClick={handleStartSimulation}
+                  disabled={isGenerating}
+                  className="group flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Mulai Simulasi
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Menganalisis CV & Membuat Pertanyaan...
+                    </>
+                  ) : (
+                    <>
+                      Mulai Simulasi
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
               </div>
 
             </div>
