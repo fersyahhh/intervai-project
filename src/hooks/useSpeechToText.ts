@@ -41,13 +41,14 @@ export function useSpeechToText() {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldBeRecordingRef = useRef(false);
   const isInitializedRef = useRef(false);
+  const previousSessionsTextRef = useRef('');
 
   // Hesitation detection (silence > 4 seconds)
   const SILENCE_THRESHOLD_MS = 4000;
 
   // Use refs for store actions so they never cause re-renders or re-initialization
   const storeActionsRef = useRef({
-    appendTranscript: useInterviewStore.getState().appendTranscript,
+    setTranscript: useInterviewStore.getState().setTranscript,
     incrementHesitation: useInterviewStore.getState().incrementHesitation,
     setStatus: useInterviewStore.getState().setStatus,
   });
@@ -55,7 +56,7 @@ export function useSpeechToText() {
   // Keep refs in sync (Zustand actions are stable, but just in case)
   useEffect(() => {
     storeActionsRef.current = {
-      appendTranscript: useInterviewStore.getState().appendTranscript,
+      setTranscript: useInterviewStore.getState().setTranscript,
       incrementHesitation: useInterviewStore.getState().incrementHesitation,
       setStatus: useInterviewStore.getState().setStatus,
     };
@@ -72,7 +73,6 @@ export function useSpeechToText() {
     clearSilenceTimer();
     silenceTimerRef.current = setTimeout(function tick() {
       storeActionsRef.current.incrementHesitation();
-      console.log('⚠️ [SpeechToText] Hesitation detected! (+1)');
       silenceTimerRef.current = setTimeout(tick, SILENCE_THRESHOLD_MS);
     }, SILENCE_THRESHOLD_MS);
   }, [clearSilenceTimer]);
@@ -98,40 +98,34 @@ export function useSpeechToText() {
     recognition.lang = 'id-ID';
 
     recognition.onstart = () => {
-      console.log('🎙️ [SpeechToText] Microphone activated, listening started.');
       setIsRecording(true);
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalText = '';
-      let interimText = '';
+      let currentFinal = '';
 
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
+      // Always iterate from 0 to capture the full state of the current continuous session.
+      // This prevents bugs on mobile where resultIndex might behave unexpectedly.
+      for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          finalText += event.results[i][0].transcript + ' ';
-        } else {
-          interimText += event.results[i][0].transcript;
+          currentFinal += event.results[i][0].transcript + ' ';
         }
       }
 
-      if (interimText.trim()) {
-        console.log('🗣️ [SpeechToText] Sedang mendengarkan (Interim):', interimText);
-      }
-
-      if (finalText.trim()) {
-        console.log('✅ [SpeechToText] Teks Final:', finalText);
-        storeActionsRef.current.appendTranscript(finalText);
+      // Combine previous sessions (if auto-restarted) with current final text
+      const fullTranscript = (previousSessionsTextRef.current + ' ' + currentFinal).trim();
+      
+      if (fullTranscript) {
+        storeActionsRef.current.setTranscript(fullTranscript);
       }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       // These errors are normal and expected — just ignore them
       if (event.error === 'no-speech' || event.error === 'aborted') {
-        console.log(`ℹ️ [SpeechToText] Ignored error: ${event.error}`);
         return;
       }
 
-      console.error('❌ [SpeechToText] Recognition error:', event.error);
       toast.error(`Terjadi kesalahan pada mikrofon: ${event.error}`);
       shouldBeRecordingRef.current = false;
       setIsRecording(false);
@@ -139,16 +133,19 @@ export function useSpeechToText() {
     };
 
     recognition.onend = () => {
-      console.log('🎙️ [SpeechToText] Sesi berhenti.');
+      // Save current transcript state before auto-restart clears the event.results
+      const currentFullText = useInterviewStore.getState().transcript;
+      if (currentFullText) {
+        previousSessionsTextRef.current = currentFullText;
+      }
 
       if (shouldBeRecordingRef.current) {
-        console.log('🔄 [SpeechToText] Auto-restart...');
         setTimeout(() => {
           if (shouldBeRecordingRef.current && recognitionRef.current) {
             try {
               recognitionRef.current.start();
             } catch (e) {
-              console.error('❌ [SpeechToText] Gagal restart:', e);
+              // ignore
             }
           }
         }, 300);
@@ -169,13 +166,16 @@ export function useSpeechToText() {
     if (!isSupported || !recognitionRef.current) return;
 
     try {
+      // Reset previous session text when starting a completely new recording explicitly
+      const currentFullText = useInterviewStore.getState().transcript;
+      previousSessionsTextRef.current = currentFullText;
+      
       shouldBeRecordingRef.current = true;
       recognitionRef.current.start();
       storeActionsRef.current.setStatus('recording');
       startSilenceTimer();
-      console.log('▶️ [SpeechToText] User pressed START');
     } catch (err) {
-      console.error('Failed to start recording:', err);
+      // ignore
     }
   }, [isSupported, startSilenceTimer]);
 
@@ -188,9 +188,8 @@ export function useSpeechToText() {
       setIsRecording(false);
       storeActionsRef.current.setStatus('idle');
       clearSilenceTimer();
-      console.log('⏹️ [SpeechToText] User pressed STOP');
     } catch (err) {
-      console.error('Failed to stop recording:', err);
+      // ignore
     }
   }, [clearSilenceTimer]);
 

@@ -17,9 +17,12 @@ import SetupPage from './presentation/pages/SetupPage';
 import InterviewRoomPage from './presentation/pages/InterviewRoomPage';
 import ReportDashboardPage from './presentation/pages/ReportDashboardPage';
 
+import BrowserSupportModal from './presentation/components/modules/BrowserSupportModal';
+
 function App() {
   return (
     <AuthProvider>
+      <BrowserSupportModal />
       <Toaster
         position="top-right"
         toastOptions={{
