@@ -22,7 +22,11 @@ serve(async (req) => {
 The candidate is applying for: ${position}
 
 Evaluate the candidate's answer based on the question asked.
-Pay close attention to the candidate's fluency. If the transcript contains filler words (like "hmm", "eee", "ehmm", "um") or fragmented/hesitant sentences, you MUST lower their confidence score and explicitly point this out as an area of improvement.
+IMPORTANT RULES FOR SCORING (BE GENEROUS AND SUPPORTIVE):
+1. The answer was transcribed by an AI Speech-to-Text tool, which is prone to typos, repeated words, and homophone errors. Be highly lenient and forgiving with minor grammar mistakes, strange words, or fragmented sentences. 
+2. Do NOT be overly strict or harsh. We want to encourage the candidate.
+3. Focus entirely on the core intent, knowledge, and substance of the candidate's answer.
+4. If the candidate attempts to answer the question reasonably well, give them a generous and motivating score (e.g., 75-95). Only give low scores (< 60) if the answer is completely off-topic, highly inappropriate, or entirely empty.
 
 Return the evaluation STRICTLY as a JSON object with the following keys and value types:
 {
