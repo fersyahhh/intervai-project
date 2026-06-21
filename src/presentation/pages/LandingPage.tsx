@@ -245,7 +245,7 @@ export default function LandingPage() {
                   Dapatkan feedback & laporan AI
                 </h3>
                 <p className="text-gray-500 leading-relaxed">
-                  Groq AI mengevaluasi jawabanmu — memberi skor relevansi,
+                  AI mengevaluasi jawabanmu — memberi skor relevansi,
                   kejelasan, dan mendeteksi keraguan. Unduh laporan PDF yang
                   detail untuk dipelajari secara offline.
                 </p>
