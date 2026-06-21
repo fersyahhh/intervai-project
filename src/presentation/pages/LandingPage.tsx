@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  Briefcase,
   ArrowRight,
   Mic,
   FileText,
@@ -13,8 +12,9 @@ import {
   Zap,
   Globe,
   CheckCircle,
-} from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import logoImg from "../../assets/logo.png";
 
 /* ───────────────────────────────────
    Sub-components (kept in-file for 
@@ -44,10 +44,10 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
           {question}
         </span>
         <ChevronDown
-          className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
-      <div className={`faq-content ${open ? 'open' : ''}`}>
+      <div className={`faq-content ${open ? "open" : ""}`}>
         <div>
           <p className="pb-5 text-gray-500 leading-relaxed">{answer}</p>
         </div>
@@ -62,46 +62,57 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 
 export default function LandingPage() {
   const { user, signOut } = useAuth();
-  
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
       {/* ========== NAVBAR ========== */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <Briefcase className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">IntervAI</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 md:py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-1 shrink-0">
+            <img
+              src={logoImg}
+              alt="IntervAI Logo"
+              className="w-10 h-10 md:w-13 md:h-13 object-contain shrink-0"
+            />
+            <span className="font-bold text-xl md:text-2xl tracking-tight shrink-0">IntervAI</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
-            <a href="#how-it-works" className="hover:text-black transition-colors">Cara Kerja</a>
-            <a href="#features" className="hover:text-black transition-colors">Fitur</a>
-            <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
+            <a
+              href="#how-it-works"
+              className="hover:text-black transition-colors"
+            >
+              Cara Kerja
+            </a>
+            <a href="#features" className="hover:text-black transition-colors">
+              Fitur
+            </a>
+            <a href="#faq" className="hover:text-black transition-colors">
+              FAQ
+            </a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               <button
                 onClick={signOut}
-                className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
+                className="text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors px-2 py-1.5 sm:px-3 sm:py-2 shrink-0"
               >
                 Log out
               </button>
             ) : (
               <Link
                 to="/login"
-                className="text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2"
+                className="text-xs sm:text-sm font-medium text-gray-600 hover:text-black transition-colors px-2 py-1.5 sm:px-3 sm:py-2 shrink-0"
               >
                 Log in
               </Link>
             )}
             <Link
               to={user ? "/setup" : "/setup"}
-              className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="text-xs sm:text-sm font-medium bg-black text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-800 transition-colors shrink-0 whitespace-nowrap"
             >
-              {user ? "Mulai saja" : "Masuk Gratis"}
+              {user ? "Mulai Sekarang" : "Masuk Gratis"}
             </Link>
           </div>
         </div>
@@ -114,20 +125,11 @@ export default function LandingPage() {
         <div className="glow-orb glow-orb-purple w-[500px] h-[500px] top-20 right-0 animate-float-reverse delay-300"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32 md:pt-32 md:pb-40 flex flex-col items-center text-center">
-          {/* Badge */}
-          <div className="animate-fade-in-up inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 mb-8">
-            <span className="text-xs font-medium text-gray-500">Didukung oleh</span>
-            <span className="flex items-center gap-1.5">
-              <Brain className="w-4 h-4 text-blue-500" />
-              <span className="text-xs font-bold text-gray-800">Gemini AI</span>
-            </span>
-          </div>
-
           {/* Headline */}
           <h1 className="animate-fade-in-up delay-100 text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] max-w-4xl">
-            Kuasai setiap wawancara dengan{' '}
+            Kuasai setiap wawancara dengan{" "}
             <span className="relative">
-              <span className="text-blue-600">AI Coach</span>
+              <span className="text-blue-600">Interv AI</span>
               <svg
                 className="absolute -bottom-2 left-0 w-full"
                 viewBox="0 0 300 12"
@@ -147,8 +149,9 @@ export default function LandingPage() {
 
           {/* Sub-headline */}
           <p className="animate-fade-in-up delay-200 mt-6 text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed">
-            Unggah CV dan deskripsi pekerjaan. Latihan dengan real-time voice recognition.
-            Dapatkan feedback AI instan — <span className="font-semibold text-gray-700">100% gratis</span>.
+            Unggah CV dan deskripsi pekerjaan. Latihan dengan real-time voice
+            recognition. Dapatkan feedback AI instan —{" "}
+            <span className="font-semibold text-gray-700">100% gratis</span>.
           </p>
 
           {/* CTA Buttons */}
@@ -171,15 +174,21 @@ export default function LandingPage() {
           <div className="animate-fade-in-up delay-500 mt-16 grid grid-cols-3 gap-8 md:gap-16">
             <div className="text-center">
               <p className="text-2xl md:text-3xl font-bold">100%</p>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">Gratis Selamanya</p>
+              <p className="text-xs md:text-sm text-gray-400 mt-1">
+                Gratis Selamanya
+              </p>
             </div>
             <div className="text-center">
               <p className="text-2xl md:text-3xl font-bold">Real-time</p>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">Pengenalan Suara</p>
+              <p className="text-xs md:text-sm text-gray-400 mt-1">
+                Pengenalan Suara
+              </p>
             </div>
             <div className="text-center">
               <p className="text-2xl md:text-3xl font-bold">AI</p>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">Feedback Personal</p>
+              <p className="text-xs md:text-sm text-gray-400 mt-1">
+                Feedback Personal
+              </p>
             </div>
           </div>
         </div>
@@ -197,7 +206,8 @@ export default function LandingPage() {
               Cara Kerja
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed">
-              Dari upload CV hingga laporan AI yang detail,<br className="hidden md:block" />
+              Dari upload CV hingga laporan AI yang detail,
+              <br className="hidden md:block" />
               perjalananmu hanya dalam tiga langkah.
             </p>
           </div>
@@ -211,8 +221,9 @@ export default function LandingPage() {
                 <StepIndicator number="01" />
                 <h3 className="text-xl font-bold mb-2">Siapkan wawancaramu</h3>
                 <p className="text-gray-500 leading-relaxed">
-                  Masukkan posisi dan deskripsi pekerjaan, lalu unggah CV-mu dalam format PDF.
-                  AI kami akan menganalisis keduanya untuk membuat pertanyaan yang personal.
+                  Masukkan posisi dan deskripsi pekerjaan, lalu unggah CV-mu
+                  dalam format PDF. AI kami akan menganalisis keduanya untuk
+                  membuat pertanyaan yang personal.
                 </p>
               </div>
 
@@ -221,18 +232,22 @@ export default function LandingPage() {
                 <StepIndicator number="02" />
                 <h3 className="text-xl font-bold mb-2">Latihan dengan suara</h3>
                 <p className="text-gray-500 leading-relaxed">
-                  Jawab setiap pertanyaan secara lisan. Speech recognition bawaan browser
-                  mengubah suaramu menjadi teks secara real-time — tanpa biaya server, tanpa delay.
+                  Jawab setiap pertanyaan secara lisan. Speech recognition
+                  bawaan browser mengubah suaramu menjadi teks secara real-time
+                  — tanpa biaya server, tanpa delay.
                 </p>
               </div>
 
               {/* Step 3 */}
               <div className="p-8 md:p-10 bento-cell hover:bg-gray-50/50 border-t border-gray-200">
                 <StepIndicator number="03" />
-                <h3 className="text-xl font-bold mb-2">Dapatkan feedback & laporan AI</h3>
+                <h3 className="text-xl font-bold mb-2">
+                  Dapatkan feedback & laporan AI
+                </h3>
                 <p className="text-gray-500 leading-relaxed">
-                  Gemini AI mengevaluasi jawabanmu — memberi skor relevansi, kejelasan, dan mendeteksi
-                  keraguan. Unduh laporan PDF yang detail untuk dipelajari secara offline.
+                  Groq AI mengevaluasi jawabanmu — memberi skor relevansi,
+                  kejelasan, dan mendeteksi keraguan. Unduh laporan PDF yang
+                  detail untuk dipelajari secara offline.
                 </p>
               </div>
             </div>
@@ -246,7 +261,9 @@ export default function LandingPage() {
                 {/* Mock Interview Card */}
                 <div className="glass-card rounded-xl shadow-lg p-6 space-y-4 relative animate-float">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ruang Wawancara</span>
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      Ruang Wawancara
+                    </span>
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Langsung
@@ -254,7 +271,8 @@ export default function LandingPage() {
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                     <p className="text-sm text-gray-600 italic">
-                      "Ceritakan tentang proyek yang menantang yang pernah kamu kerjakan dan bagaimana kamu mengatasinya."
+                      "Ceritakan tentang proyek yang menantang yang pernah kamu
+                      kerjakan dan bagaimana kamu mengatasinya."
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -273,21 +291,36 @@ export default function LandingPage() {
                 {/* Mock Score Card */}
                 <div className="glass-card rounded-xl shadow-lg p-6 relative animate-float-reverse delay-200">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Skor AI</span>
-                    <span className="text-2xl font-bold text-blue-600">87<span className="text-sm text-gray-400">/100</span></span>
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      Skor AI
+                    </span>
+                    <span className="text-2xl font-bold text-blue-600">
+                      87<span className="text-sm text-gray-400">/100</span>
+                    </span>
                   </div>
                   <div className="space-y-2">
                     {[
-                      { label: 'Relevansi', pct: 92, color: 'bg-emerald-500' },
-                      { label: 'Kejelasan', pct: 85, color: 'bg-blue-500' },
-                      { label: 'Kepercayaan Diri', pct: 78, color: 'bg-amber-500' },
+                      { label: "Relevansi", pct: 92, color: "bg-emerald-500" },
+                      { label: "Kejelasan", pct: 85, color: "bg-blue-500" },
+                      {
+                        label: "Kepercayaan Diri",
+                        pct: 78,
+                        color: "bg-amber-500",
+                      },
                     ].map((bar) => (
                       <div key={bar.label} className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500 w-28">{bar.label}</span>
+                        <span className="text-xs text-gray-500 w-28">
+                          {bar.label}
+                        </span>
                         <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${bar.color}`} style={{ width: `${bar.pct}%` }} />
+                          <div
+                            className={`h-full rounded-full ${bar.color}`}
+                            style={{ width: `${bar.pct}%` }}
+                          />
                         </div>
-                        <span className="text-xs font-medium text-gray-600 w-8 text-right">{bar.pct}%</span>
+                        <span className="text-xs font-medium text-gray-600 w-8 text-right">
+                          {bar.pct}%
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -299,7 +332,10 @@ export default function LandingPage() {
       </section>
 
       {/* ========== FEATURES BENTO GRID ========== */}
-      <section id="features" className="py-24 md:py-32 bg-gray-50 border-y border-gray-200">
+      <section
+        id="features"
+        className="py-24 md:py-32 bg-gray-50 border-y border-gray-200"
+      >
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-xl mb-16 md:mb-20">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
@@ -318,9 +354,12 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-blue-100 transition-colors">
                 <Mic className="w-5 h-5 text-blue-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Speech-to-Text Real-time</h3>
+              <h3 className="font-bold text-lg mb-2">
+                Speech-to-Text Real-time
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Memanfaatkan Web Speech API bawaan browser untuk transkripsi suara instan tanpa biaya langsung di browsermu.
+                Memanfaatkan Web Speech API bawaan browser untuk transkripsi
+                suara instan tanpa biaya langsung di browsermu.
               </p>
             </div>
 
@@ -328,9 +367,12 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center mb-5 group-hover:bg-amber-100 transition-colors">
                 <Upload className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Upload CV & Deskripsi Pekerjaan</h3>
+              <h3 className="font-bold text-lg mb-2">
+                Upload CV & Deskripsi Pekerjaan
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Unggah resume-mu dan tempel lowongan pekerjaan. AI menyesuaikan setiap pertanyaan dengan konteksmu.
+                Unggah resume-mu dan tempel lowongan pekerjaan. AI menyesuaikan
+                setiap pertanyaan dengan konteksmu.
               </p>
             </div>
 
@@ -338,9 +380,11 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-5 group-hover:bg-emerald-100 transition-colors">
                 <Brain className="w-5 h-5 text-emerald-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Evaluasi Gemini AI</h3>
+              <h3 className="font-bold text-lg mb-2">Evaluasi Groq AI</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Setiap jawaban dianalisis oleh Gemini berdasarkan relevansi, kejelasan, dan kepercayaan diri — disertai skor dan saran yang actionable.
+                Setiap jawaban dianalisis oleh Groq berdasarkan relevansi,
+                kejelasan, dan kepercayaan diri — disertai skor dan saran yang
+                actionable.
               </p>
             </div>
 
@@ -354,7 +398,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Deteksi Keraguan</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Tracking durasi hening di frontend mengidentifikasi jeda gugup, sehingga kamu bisa meningkatkan kelancaran dan kepercayaan diri.
+                Tracking durasi hening di frontend mengidentifikasi jeda gugup,
+                sehingga kamu bisa meningkatkan kelancaran dan kepercayaan diri.
               </p>
             </div>
 
@@ -364,7 +409,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Ekspor Laporan PDF</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Unduh laporan PDF lengkap berisi skor, feedback, dan saran perbaikan untuk dipelajari secara offline.
+                Unduh laporan PDF lengkap berisi skor, feedback, dan saran
+                perbaikan untuk dipelajari secara offline.
               </p>
             </div>
 
@@ -374,7 +420,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Aman & Privat</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Audio tetap di perangkatmu. Transkrip dilindungi oleh Supabase RLS. Datamu tidak pernah dijual atau dibagikan.
+                Audio tetap di perangkatmu. Transkrip dilindungi oleh Supabase
+                RLS. Datamu tidak pernah dijual atau dibagikan.
               </p>
             </div>
           </div>
@@ -393,12 +440,16 @@ export default function LandingPage() {
                   Kenapa gratis?
                 </h2>
                 <p className="text-gray-500 text-lg leading-relaxed mb-8">
-                  Platform simulasi wawancara umumnya mematok harga mahal karena pemrosesan audio di server
-                  sangat costly. Kami mengambil pendekatan berbeda.
+                  Platform simulasi wawancara umumnya mematok harga mahal karena
+                  pemrosesan audio di server sangat costly. Kami mengambil
+                  pendekatan berbeda.
                 </p>
                 <div className="flex items-center gap-4">
                   <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block" />
-                  <Link to="/setup" className="text-sm font-semibold hover:underline">
+                  <Link
+                    to="/setup"
+                    className="text-sm font-semibold hover:underline"
+                  >
                     Coba sendiri &rarr;
                   </Link>
                 </div>
@@ -414,7 +465,8 @@ export default function LandingPage() {
                 <div>
                   <h3 className="font-bold mb-1">STT Bawaan Browser</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    Web Speech API berjalan sepenuhnya di perangkatmu — nol biaya transkripsi server.
+                    Web Speech API berjalan sepenuhnya di perangkatmu — nol
+                    biaya transkripsi server.
                   </p>
                 </div>
               </div>
@@ -424,9 +476,10 @@ export default function LandingPage() {
                   <Zap className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">Gemini Free Tier</h3>
+                  <h3 className="font-bold mb-1">Groq Free Tier</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    Google AI Studio menyediakan free tier yang murah hati untuk Gemini API, menjaga biaya evaluasi tetap nol.
+                    Groq AI menyediakan free tier yang murah hati untuk Groq
+                    API, menjaga biaya evaluasi tetap nol.
                   </p>
                 </div>
               </div>
@@ -438,7 +491,8 @@ export default function LandingPage() {
                 <div>
                   <h3 className="font-bold mb-1">Backend Supabase</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    Auth, storage, dan database menggunakan Supabase free plan — aman, scalable, dan hemat biaya.
+                    Auth, storage, dan database menggunakan Supabase free plan —
+                    aman, scalable, dan hemat biaya.
                   </p>
                 </div>
               </div>
@@ -465,7 +519,7 @@ export default function LandingPage() {
             <div className="md:col-span-3">
               <FAQItem
                 question="Apakah IntervAI benar-benar 100% gratis?"
-                answer="Ya! Kami menggunakan speech recognition bawaan browser (tanpa biaya server) dan free tier Gemini AI. Tidak ada biaya tersembunyi, langganan, atau paket premium."
+                answer="Ya! Kami menggunakan speech recognition bawaan browser (tanpa biaya server) dan free tier Groq AI. Tidak ada biaya tersembunyi, langganan, atau paket premium."
               />
               <FAQItem
                 question="Browser apa saja yang mendukung speech recognition?"
@@ -481,7 +535,7 @@ export default function LandingPage() {
               />
               <FAQItem
                 question="Seberapa akurat feedback dari AI?"
-                answer="IntervAI menggunakan Gemini AI dari Google untuk mengevaluasi jawabanmu berdasarkan relevansi, kejelasan, dan kepercayaan diri. Meskipun bukan pengganti interviewer sungguhan, ini memberikan insight yang actionable untuk membantumu berkembang."
+                answer="IntervAI menggunakan Groq AI untuk mengevaluasi jawabanmu berdasarkan relevansi, kejelasan, dan kepercayaan diri. Meskipun bukan pengganti interviewer sungguhan, ini memberikan insight yang actionable untuk membantumu berkembang."
               />
               <FAQItem
                 question="Bisa download hasil wawancara?"
@@ -499,7 +553,8 @@ export default function LandingPage() {
             Siap kuasai wawancara berikutnya?
           </h2>
           <p className="text-gray-500 mb-8 max-w-lg mx-auto">
-            Bergabung dengan ribuan pencari kerja yang berlatih lebih cerdas, bukan lebih keras.
+            Bergabung dengan ribuan pencari kerja yang berlatih lebih cerdas,
+            bukan lebih keras.
           </p>
           <Link
             to="/setup"
@@ -513,19 +568,31 @@ export default function LandingPage() {
       {/* ========== FOOTER ========== */}
       <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-black rounded-md flex items-center justify-center">
-              <Briefcase className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-bold text-sm tracking-tight">IntervAI</span>
+          <div className="flex items-center gap-1">
+            <img
+              src={logoImg}
+              alt="IntervAI Logo"
+              className="w-10 h-10 object-contain"
+            />
+
+            <span className="font-bold text-lg tracking-tight">IntervAI</span>
           </div>
           <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} IntervAI. Dibuat untuk HIMTIF Hackathon.
+            &copy; {new Date().getFullYear()} IntervAI. All Rights Reserved
           </p>
           <div className="flex items-center gap-6 text-sm text-gray-400">
-            <a href="#" className="hover:text-black transition-colors">Privasi</a>
-            <a href="#" className="hover:text-black transition-colors">Ketentuan</a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">GitHub</a>
+            <a href="#" className="hover:text-black transition-colors">
+              Privasi
+            </a>
+            <a href="#" className="hover:text-black transition-colors">
+              Ketentuan
+            </a>
+            <a
+              href="#"
+              className="hover:text-black transition-colors"
+            >
+              GitHub
+            </a>
           </div>
         </div>
       </footer>

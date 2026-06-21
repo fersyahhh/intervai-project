@@ -1,9 +1,10 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { UploadCloud, FileText, Briefcase, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileText, Briefcase, ArrowRight, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../config/supabase';
 import { useInterviewStore } from '../../store/useInterviewStore';
 import { extractTextFromPDF } from '../../utils/pdfParser';
+import toast from 'react-hot-toast';
 
 export default function SetupPage() {
   const navigate = useNavigate();
@@ -15,27 +16,24 @@ export default function SetupPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
-      setError(null);
     }
   };
 
   const handleStartSimulation = async () => {
     if (!position.trim()) {
-      setError('Posisi pekerjaan wajib diisi.');
+      toast.error('Posisi pekerjaan wajib diisi.');
       return;
     }
     if (!file) {
-      setError('Mohon unggah CV Anda (PDF).');
+      toast.error('Mohon unggah CV Anda (PDF).');
       return;
     }
 
     setIsGenerating(true);
-    setError(null);
 
     try {
       // 1. Extract text from PDF
@@ -85,7 +83,7 @@ export default function SetupPage() {
 
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Terjadi kesalahan sistem.');
+      toast.error(err.message || 'Terjadi kesalahan sistem.');
     } finally {
       setIsGenerating(false);
     }
@@ -99,43 +97,39 @@ export default function SetupPage() {
 
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Back to Home Button */}
-        <div className="flex justify-start">
+        <div className="flex justify-start items-center">
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors px-3 py-2 rounded-lg hover:bg-gray-50"
           >
-            ← Kembali ke Home
+            <span className='mb-1'>←</span>   
+            Back To Home
           </Link>
         </div>
 
         {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+        <div className="text-center space-y-3 md:space-y-4 px-2">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
             Kustomisasi Sesi
           </h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+          <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto font-medium">
             Atur konteks wawancara dengan posisi pekerjaan dan riwayat hidup Anda untuk mendapatkan pertanyaan yang presisi.
           </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl flex items-center gap-3 shadow-sm mx-4 sm:mx-0">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <p className="text-sm font-semibold">{error}</p>
-          </div>
-        )}
+
 
         {/* Main Content Card */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
             
             {/* Left Column: Job Details */}
-            <div className="p-8 md:p-10 space-y-8">
+            <div className="p-5 md:p-8 lg:p-10 space-y-6 md:space-y-8">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center">
                   <Briefcase className="w-5 h-5 text-blue-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-900">Konteks Peran</h2>
+                <h2 className="text-lg font-semibold text-slate-900">Job Details</h2>
               </div>
 
               <div className="space-y-5">
@@ -172,14 +166,14 @@ export default function SetupPage() {
             </div>
 
             {/* Right Column: CV Upload */}
-            <div className="p-8 md:p-10 space-y-8 bg-slate-50/50 flex flex-col justify-between">
+            <div className="p-5 md:p-8 lg:p-10 space-y-6 md:space-y-8 bg-slate-50/50 flex flex-col justify-between">
               
-              <div className="space-y-8">
+              <div className="space-y-6 md:space-y-8">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-slate-900/5 flex items-center justify-center">
                     <FileText className="w-5 h-5 text-slate-900" />
                   </div>
-                  <h2 className="text-lg font-semibold text-slate-900">Dokumen Resume</h2>
+                  <h2 className="text-lg font-semibold text-slate-900">Document Resume</h2>
                 </div>
 
                 <label 
@@ -190,7 +184,6 @@ export default function SetupPage() {
                     setDragActive(false);
                     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                       setFile(e.dataTransfer.files[0]);
-                      setError(null);
                     }
                   }}
                   className={`relative flex flex-col items-center justify-center w-full h-56 rounded-2xl border-2 border-dashed transition-all ${!isGenerating ? 'cursor-pointer' : 'cursor-not-allowed'} ${
@@ -218,18 +211,18 @@ export default function SetupPage() {
                 <button 
                   onClick={handleStartSimulation}
                   disabled={isGenerating}
-                  className="group flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="group flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed px-4"
                 >
                   {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Menganalisis CV & Membuat Pertanyaan...
-                    </>
+                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                      <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                      <span className="text-center leading-tight">Menganalisis CV & Membuat Pertanyaan...</span>
+                    </div>
                   ) : (
-                    <>
-                      Mulai Simulasi
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
+                    <div className="flex items-center justify-center gap-2">
+                      <span>Mulai Simulasi</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
+                    </div>
                   )}
                 </button>
               </div>

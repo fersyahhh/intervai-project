@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useInterviewStore } from '../store/useInterviewStore';
+import toast from 'react-hot-toast';
 
 // Type declarations for Web Speech API
 interface SpeechRecognitionEvent extends Event {
@@ -35,7 +36,6 @@ declare global {
 export function useSpeechToText() {
   const [isSupported, setIsSupported] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,7 +86,7 @@ export function useSpeechToText() {
 
     if (!SpeechRecognitionAPI) {
       setIsSupported(false);
-      setError('Browser Anda tidak mendukung Web Speech API. Silakan gunakan Google Chrome.');
+      toast.error('Browser Anda tidak mendukung Web Speech API. Silakan gunakan Google Chrome.');
       return;
     }
 
@@ -131,8 +131,8 @@ export function useSpeechToText() {
         return;
       }
 
-      console.error('❌ [SpeechToText] Error:', event.error);
-      setError(`Terjadi kesalahan pada mikrofon: ${event.error}`);
+      console.error('❌ [SpeechToText] Recognition error:', event.error);
+      toast.error(`Terjadi kesalahan pada mikrofon: ${event.error}`);
       shouldBeRecordingRef.current = false;
       setIsRecording(false);
       storeActionsRef.current.setStatus('idle');
@@ -166,7 +166,6 @@ export function useSpeechToText() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startRecording = useCallback(() => {
-    setError(null);
     if (!isSupported || !recognitionRef.current) return;
 
     try {
@@ -206,7 +205,6 @@ export function useSpeechToText() {
   return {
     isSupported,
     isRecording,
-    error,
     startRecording,
     stopRecording,
     toggleRecording,

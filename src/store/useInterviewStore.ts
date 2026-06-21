@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { AiFeedback } from '../types/database.types';
 
 export type InterviewStatus = 'setup' | 'idle' | 'recording' | 'processing' | 'completed';
@@ -70,58 +71,71 @@ const initialState = {
   detailedFeedbacks: [],
 };
 
-export const useInterviewStore = create<InterviewState>((set) => ({
-  ...initialState,
+export const useInterviewStore = create<InterviewState>()(
+  persist(
+    (set) => ({
+      ...initialState,
 
-  setInterviewContext: (id, position, jobDesc, cvUrl = null) =>
-    set({
-      interviewId: id,
-      position,
-      jobDescription: jobDesc,
-      cvUrl,
-      status: 'idle',
+      setInterviewContext: (id, position, jobDesc, cvUrl = null) =>
+        set({
+          interviewId: id,
+          position,
+          jobDescription: jobDesc,
+          cvUrl,
+          status: 'idle',
+          // Reset session-specific state for new interview
+          currentQuestionIndex: 0,
+          transcript: '',
+          hesitationCount: 0,
+          overallScore: null,
+          detailedFeedbacks: [],
+        }),
+
+      setQuestions: (questions) => set({ questions }),
+
+      setStatus: (status) => set({ status }),
+
+      setTranscript: (text) => set({ transcript: text }),
+
+      appendTranscript: (text) =>
+        set((state) => ({
+          transcript: state.transcript ? `${state.transcript} ${text}` : text,
+        })),
+
+      clearTranscript: () => set({ transcript: '' }),
+
+      incrementHesitation: () =>
+        set((state) => ({ hesitationCount: state.hesitationCount + 1 })),
+
+      saveCurrentAnswerFeedback: (answer, feedback) =>
+        set((state) => {
+          const currentQ = state.questions[state.currentQuestionIndex];
+          return {
+            detailedFeedbacks: [
+              ...state.detailedFeedbacks,
+              { question: currentQ, answer, feedback },
+            ],
+          };
+        }),
+
+      nextQuestion: () =>
+        set((state) => ({
+          currentQuestionIndex: state.currentQuestionIndex + 1,
+          transcript: '',
+          hesitationCount: 0, // Reset hesitation for the new question
+          status: 'idle',
+        })),
+
+      finishInterview: (score) =>
+        set({
+          status: 'completed',
+          overallScore: score,
+        }),
+
+      resetStore: () => set(initialState),
     }),
-
-  setQuestions: (questions) => set({ questions }),
-
-  setStatus: (status) => set({ status }),
-
-  setTranscript: (text) => set({ transcript: text }),
-
-  appendTranscript: (text) =>
-    set((state) => ({
-      transcript: state.transcript ? `${state.transcript} ${text}` : text,
-    })),
-
-  clearTranscript: () => set({ transcript: '' }),
-
-  incrementHesitation: () =>
-    set((state) => ({ hesitationCount: state.hesitationCount + 1 })),
-
-  saveCurrentAnswerFeedback: (answer, feedback) =>
-    set((state) => {
-      const currentQ = state.questions[state.currentQuestionIndex];
-      return {
-        detailedFeedbacks: [
-          ...state.detailedFeedbacks,
-          { question: currentQ, answer, feedback },
-        ],
-      };
-    }),
-
-  nextQuestion: () =>
-    set((state) => ({
-      currentQuestionIndex: state.currentQuestionIndex + 1,
-      transcript: '',
-      hesitationCount: 0, // Reset hesitation for the new question
-      status: 'idle',
-    })),
-
-  finishInterview: (score) =>
-    set({
-      status: 'completed',
-      overallScore: score,
-    }),
-
-  resetStore: () => set(initialState),
-}));
+    {
+      name: 'intervai-interview-storage',
+    }
+  )
+);

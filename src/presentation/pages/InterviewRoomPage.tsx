@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Mic, Square, Loader2, AlertCircle, Send } from 'lucide-react';
+import { Mic, Square, Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../config/supabase';
 import { useInterviewStore } from '../../store/useInterviewStore';
 import { useSpeechToText } from '../../hooks/useSpeechToText';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function InterviewRoomPage() {
   const navigate = useNavigate();
@@ -26,11 +27,10 @@ export default function InterviewRoomPage() {
   const {
     isSupported,
     isRecording,
-    error,
     toggleRecording
   } = useSpeechToText();
 
-  const [evaluationError, setEvaluationError] = useState<string | null>(null);
+
 
   const isProcessing = status === 'processing';
   
@@ -53,12 +53,12 @@ export default function InterviewRoomPage() {
 
   const handleSubmitAnswer = async () => {
     if (!transcript.trim()) {
-      setEvaluationError('Jawaban kosong. Silakan gunakan mikrofon untuk merekam jawaban Anda.');
+      toast.error('Jawaban kosong. Silakan gunakan mikrofon untuk merekam jawaban Anda.');
       return;
     }
 
     setStatus('processing');
-    setEvaluationError(null);
+
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke('evaluate-answer', {
@@ -103,26 +103,27 @@ export default function InterviewRoomPage() {
 
     } catch (err: any) {
       console.error(err);
-      setEvaluationError(err.message || 'Gagal mengevaluasi jawaban.');
+      toast.error(err.message || 'Gagal mengevaluasi jawaban.');
+    } finally {
       setStatus('idle');
     }
   };
 
   return (
-    <div className="min-h-screen bg-white text-black pb-24 pt-8 animate-fade-in-up">
-      <div className="max-w-4xl mx-auto px-6 space-y-8">
+    <div className="min-h-screen bg-white text-black pb-12 md:pb-24 pt-4 md:pt-8 animate-fade-in-up">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 md:space-y-8">
         
         {/* Header Section */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
-          <div>
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 md:pb-6 border-b border-gray-200">
+          <div className="text-center sm:text-left">
             <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 mb-1">
               Halo, {user?.user_metadata?.full_name?.split(' ')[0] || 'Kandidat'}
             </h1>
             <p className="text-sm text-gray-500 font-medium">{displayPosition}</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-end gap-1.5">
+          <div className="flex justify-center sm:justify-end items-center gap-4">
+            <div className="flex flex-col items-center sm:items-end gap-1.5">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Pertanyaan {questionNumber} dari {totalQuestions}</span>
               <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div 
@@ -135,26 +136,14 @@ export default function InterviewRoomPage() {
         </header>
 
         {/* Warnings */}
-        {!isSupported && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-rose-600" />
-            <p className="text-sm font-semibold">Browser Anda tidak mendukung Web Speech API. Silakan gunakan Google Chrome untuk fitur ini.</p>
-          </div>
-        )}
 
-        {(error || evaluationError) && isSupported && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-rose-600" />
-            <p className="text-sm font-semibold">{error || evaluationError}</p>
-          </div>
-        )}
 
         {/* Main Interface Container - Bento Style */}
         <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm flex flex-col">
           
           {/* Question Section - Dot Grid Background */}
-          <div className="dot-grid bg-gray-50 p-8 md:p-12 relative border-b border-gray-200">
-            <div className="glow-orb glow-orb-blue w-64 h-64 top-0 left-0 animate-float-slow"></div>
+          <div className="dot-grid bg-gray-50 p-6 sm:p-8 md:p-12 relative border-b border-gray-200">
+            <div className="glow-orb glow-orb-blue w-64 h-64 top-0 left-0 animate-float-slow hidden md:block"></div>
             
             <div className="relative z-10 max-w-3xl">
               <div className="flex items-center gap-3 mb-6">
@@ -163,14 +152,14 @@ export default function InterviewRoomPage() {
                   Pertanyaan {questionNumber}
                 </span>
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed tracking-tight">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed tracking-tight">
                 "{currentQuestion}"
               </p>
             </div>
           </div>
 
           {/* User Answer / STT Section */}
-          <div className="p-8 md:p-12 min-h-[350px] flex flex-col justify-between bg-white relative">
+          <div className="p-6 sm:p-8 md:p-12 min-h-[300px] md:min-h-[350px] flex flex-col justify-between bg-white relative">
             
             <div className="flex-grow max-w-3xl">
               {isProcessing ? (
@@ -195,8 +184,8 @@ export default function InterviewRoomPage() {
             </div>
 
             {/* Bottom Action Bar */}
-            <div className="flex items-center justify-between mt-12 pt-8 border-t border-gray-100">
-              <div className="w-40 flex items-center">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-4 mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-100">
+              <div className="w-full sm:w-40 flex items-center justify-center sm:justify-start">
                 {isRecording && (
                   <div className="flex items-center gap-2.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-md border border-blue-100 font-bold text-xs uppercase tracking-widest">
                     <span className="relative flex h-2 w-2">
@@ -228,13 +217,13 @@ export default function InterviewRoomPage() {
                 )}
               </div>
 
-              <div className="w-40 flex flex-col justify-end items-end gap-2">
+              <div className="w-full sm:w-40 flex flex-col justify-center sm:justify-end items-center sm:items-end gap-2">
                 <button 
                   onClick={handleSubmitAnswer}
                   disabled={isRecording || transcript.trim().length === 0 || isProcessing}
                   className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-all bg-black hover:bg-gray-800 px-6 py-3 rounded-lg shadow-sm disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {questionNumber === totalQuestions ? 'Selesai' : 'Kirim & Lanjut'}
+                  {questionNumber === totalQuestions ? 'Selesai' : 'Lanjut'}
                   <Send className="w-4 h-4" />
                 </button>
                 
