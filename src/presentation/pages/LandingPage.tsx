@@ -112,7 +112,7 @@ export default function LandingPage() {
               to={user ? "/setup" : "/setup"}
               className="text-xs sm:text-sm font-medium bg-black text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-800 transition-colors shrink-0 whitespace-nowrap"
             >
-              {user ? "Mulai Sekarang" : "Masuk Gratis"}
+              {user ? "Mulai Sekarang" : "Mulai Sekarang"}
             </Link>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function LandingPage() {
           <p className="animate-fade-in-up delay-200 mt-6 text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed">
             Unggah CV dan deskripsi pekerjaan. Latihan dengan real-time voice
             recognition. Dapatkan feedback AI instan —{" "}
-            <span className="font-semibold text-gray-700">100% gratis</span>.
+            <span className="font-semibold text-gray-700">berbasis AI</span>.
           </p>
 
           {/* CTA Buttons */}
@@ -160,7 +160,7 @@ export default function LandingPage() {
               to="/setup"
               className="inline-flex items-center gap-2.5 bg-black text-white px-7 py-3.5 rounded-lg text-base font-semibold hover:bg-gray-800 transition-all hover:gap-4"
             >
-              Mulai Latihan Gratis <ArrowRight className="w-4 h-4" />
+              Mulai Latihan <ArrowRight className="w-4 h-4" />
             </Link>
             <a
               href="#how-it-works"
@@ -173,9 +173,9 @@ export default function LandingPage() {
           {/* Stats Row */}
           <div className="animate-fade-in-up delay-500 mt-16 grid grid-cols-3 gap-8 md:gap-16">
             <div className="text-center">
-              <p className="text-2xl md:text-3xl font-bold">100%</p>
+              <p className="text-2xl md:text-3xl font-bold">24/7</p>
               <p className="text-xs md:text-sm text-gray-400 mt-1">
-                Gratis Selamanya
+                Akses Kapan Saja
               </p>
             </div>
             <div className="text-center">
@@ -343,7 +343,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed">
               Semua yang kamu butuhkan untuk mempersiapkan wawancara kerja,
-              dalam satu platform gratis.
+              dalam satu platform terpadu.
             </p>
           </div>
 
@@ -437,12 +437,12 @@ export default function LandingPage() {
               <div className="glow-orb glow-orb-amber w-64 h-64 top-0 left-0 animate-float-slow"></div>
               <div className="relative z-10">
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                  Kenapa gratis?
+                  Teknologi Efisien
                 </h2>
                 <p className="text-gray-500 text-lg leading-relaxed mb-8">
-                  Platform simulasi wawancara umumnya mematok harga mahal karena
-                  pemrosesan audio di server sangat costly. Kami mengambil
-                  pendekatan berbeda.
+                  Platform simulasi wawancara umumnya lambat karena
+                  pemrosesan audio di server sangat membebani. Kami mengambil
+                  pendekatan modern yang sangat efisien.
                 </p>
                 <div className="flex items-center gap-4">
                   <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block" />
@@ -465,8 +465,8 @@ export default function LandingPage() {
                 <div>
                   <h3 className="font-bold mb-1">STT Bawaan Browser</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    Web Speech API berjalan sepenuhnya di perangkatmu — nol
-                    biaya transkripsi server.
+                    Web Speech API berjalan sepenuhnya di perangkatmu — 
+                    pemrosesan lebih cepat tanpa delay server.
                   </p>
                 </div>
               </div>
@@ -476,10 +476,10 @@ export default function LandingPage() {
                   <Zap className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">Groq Free Tier</h3>
+                  <h3 className="font-bold mb-1">Groq LPU AI</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    Groq AI menyediakan free tier yang murah hati untuk Groq
-                    API, menjaga biaya evaluasi tetap nol.
+                    Menggunakan arsitektur Language Processing Unit dari Groq AI
+                    untuk evaluasi yang super cepat dan responsif.
                   </p>
                 </div>
               </div>
@@ -518,8 +518,8 @@ export default function LandingPage() {
             {/* Right — FAQ Items */}
             <div className="md:col-span-3">
               <FAQItem
-                question="Apakah IntervAI benar-benar 100% gratis?"
-                answer="Ya! Kami menggunakan speech recognition bawaan browser (tanpa biaya server) dan free tier Groq AI. Tidak ada biaya tersembunyi, langganan, atau paket premium."
+                question="Apakah ada biaya berlangganan?"
+                answer="Saat ini IntervAI dapat digunakan untuk berlatih secara mandiri. Kami menggunakan teknologi mutakhir untuk pengalaman terbaik tanpa hambatan berlangganan bulanan."
               />
               <FAQItem
                 question="Browser apa saja yang mendukung speech recognition?"
