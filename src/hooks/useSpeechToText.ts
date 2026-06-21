@@ -93,7 +93,7 @@ export function useSpeechToText() {
     isInitializedRef.current = true;
 
     const recognition = new SpeechRecognitionAPI();
-    recognition.continuous = true;
+    recognition.continuous = false; // CRITICAL FIX for Android Chrome duplication bug
     recognition.interimResults = true;
     recognition.lang = 'id-ID';
 
@@ -103,17 +103,18 @@ export function useSpeechToText() {
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let currentFinal = '';
+      let currentInterim = '';
 
-      // Always iterate from 0 to capture the full state of the current continuous session.
-      // This prevents bugs on mobile where resultIndex might behave unexpectedly.
       for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           currentFinal += event.results[i][0].transcript + ' ';
+        } else {
+          currentInterim += event.results[i][0].transcript;
         }
       }
 
-      // Combine previous sessions (if auto-restarted) with current final text
-      const fullTranscript = (previousSessionsTextRef.current + ' ' + currentFinal).trim();
+      // Combine previous sessions with current final AND current interim for real-time feedback
+      const fullTranscript = (previousSessionsTextRef.current + ' ' + currentFinal + ' ' + currentInterim).trim();
       
       if (fullTranscript) {
         storeActionsRef.current.setTranscript(fullTranscript);
