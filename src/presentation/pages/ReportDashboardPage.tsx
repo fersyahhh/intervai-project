@@ -191,7 +191,6 @@ export default function ReportDashboardPage() {
       const footerText3 = `© ${new Date().getFullYear()} IntervAI. All rights reserved.`;
       
       const text1Width = doc.getTextWidth(footerText1);
-      const text2Width = doc.getTextWidth(footerText2);
       doc.text(footerText1, (pageWidth - text1Width) / 2, yPos);
       yPos += 5;
       

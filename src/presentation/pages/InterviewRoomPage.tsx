@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Mic, Square, Loader2, Send } from 'lucide-react';
-import { useState } from 'react';
 import { supabase } from '../../config/supabase';
 import { useInterviewStore } from '../../store/useInterviewStore';
 import { useSpeechToText } from '../../hooks/useSpeechToText';
